@@ -5,7 +5,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{flex:1}}>
-          <Stack screenOptions={{headerTitleAlign:'center'}}>
+          <Stack screenOptions={{headerTitleAlign:'center', headerShown:false}}>
+              <Stack.Screen name="signIn" options={{title:"Patient"}}/>
+
               <Stack.Screen name="index" options={{title:'Home Page'}}/>
               <Stack.Screen name="doctor" options={{title:"Doctor"}}/>
               <Stack.Screen name="patient" options={{title:"Patient"}}/>

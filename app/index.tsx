@@ -12,6 +12,8 @@ export default function Index() {
     >
       <Link href={'/doctor'}>Go to doctor Page</Link>
       <Link href={'/patient'}>Go to patient page</Link>
+      <Link href={'/signIn'}>Login Page</Link>
+
     </View>
   );
 }
