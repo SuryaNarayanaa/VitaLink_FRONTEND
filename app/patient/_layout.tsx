@@ -12,7 +12,7 @@ const _layout = () => {
         <Drawer.Screen name='TakeDosage' options={{title:"Take_Dosage"}}/>
         <Drawer.Screen name='LifeStyleChanges' options={{title:"LifeStyleChanges"}}/>
         <Drawer.Screen name='OtherMeditation' options={{title:"OtherMeditation"}}/>
-        <Drawer.Screen name='ProLongIllness' options={{title:"ProLongIllness"}}/>
+        <Drawer.Screen name='ProlongedIllness' options={{title:"ProLongIllness"}}/>
         <Drawer.Screen name='SideEffects' options={{title:"Side Effects"}}/>
         <Drawer.Screen name='Logout' options={{title:"Logout"}}/>
       </Drawer>
