@@ -4,8 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
 import { BASE_URL } from '../config/env'
 import { router } from 'expo-router'
-const psgLogo = require('../../assets/images/right-logo.png')
-const psgIMSLogo = require('../../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png')
+import {HeaderLogos} from '../../components/HeaderLogos'
 
 export default function SignIn() {
   const [Username, setUsername] = useState('');
@@ -69,19 +68,7 @@ export default function SignIn() {
     <SafeAreaView style={styles.safeArea}>
       {/* Header with logos */}
       <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Image
-          style={styles.psgIMSLogo}
-          source={psgIMSLogo}
-          resizeMode='contain'
-        />
-        <View style={styles.divider} />
-        <Image
-          style={styles.psgLogo}
-          source={psgLogo}
-          resizeMode='contain'
-        />
-      </View>
+      <HeaderLogos />
       
       {/* Sign-in form */}
       
@@ -163,29 +150,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
-  },
-
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  divider: {
-    width: 2,
-    height: 100,
-    backgroundColor: '#ddd',
-    marginHorizontal: 20,
-  },
-  psgIMSLogo: {
-    width: 100,
-    height: 100,
-  },
-  psgLogo: {
-    width: 100,
-    height: 100,
   },
   formContainer: {
     flexGrow: 1,
