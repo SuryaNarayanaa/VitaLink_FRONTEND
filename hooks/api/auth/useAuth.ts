@@ -12,7 +12,7 @@ export interface LoginResponse {
   role: 'admin' | 'doctor' | 'patient';
 }
 
-export const useAuth = () => {
+const useAuth = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
