@@ -1,9 +1,11 @@
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import psgLogo from '../../assets/images/right-logo.png'
-import psgIMSLogo from '../../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png'
+import axios from 'axios'
+import { BASE_URL } from '../config/env'
 import { router } from 'expo-router'
+const psgLogo = require('../../assets/images/right-logo.png')
+const psgIMSLogo = require('../../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png')
 
 export default function SignIn() {
   const [Username, setUsername] = useState('');
@@ -16,21 +18,48 @@ export default function SignIn() {
       setError('Please fill in all fields');
       return;
     }
+    console.log(Username, password);
     
     setIsLoading(true);
     setError('');
     
     try {
-      // Replace with actual auth logic
-      // Example: await signIn({Username, password});
-      console.log('Signing in with:', Username);
+      console.log('Sending request...');
+      const formData = new FormData();
+      formData.append('username', Username);
+      formData.append('password', password);
+
+      const response = await axios.post(`${BASE_URL}/login`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      console.log(response.data);
+
+      const data = response.data;
       
-      // Mock successful login for now
-      setTimeout(() => {
-        router.replace('/doctor');
-      }, 1000);
+      // Handle role-based navigation
+      switch (data.role) {
+        case 'admin':
+          router.replace('/admin');
+          break;
+        case 'doctor':
+          router.replace('/doctor');
+          break;
+        case 'patient':
+          router.replace('/patient');
+          break;
+        default:
+          throw new Error('Invalid role received');
+      }
+
     } catch (err) {
-      setError('Invalid credentials. Please try again.');
+      setError(
+        axios.isAxiosError(err) 
+          ? err.response?.data?.detail || 'Login failed. Please try again.' 
+          : 'Login failed. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +130,7 @@ export default function SignIn() {
         
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/signUp')}>
+          <TouchableOpacity onPress={() => router.replace('/signUp')}>
             <Text style={styles.signUpLink}>Sign Up</Text>
           </TouchableOpacity>
         </View>
