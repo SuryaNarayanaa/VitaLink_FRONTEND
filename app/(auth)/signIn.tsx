@@ -101,9 +101,9 @@ export default function SignIn() {
           />
         </View>
         
-        <TouchableOpacity style={styles.forgotContainer}>
+        {/* <TouchableOpacity style={styles.forgotContainer}>
           <Text style={styles.forgotText}>Forgot password?</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         
         <TouchableOpacity
           style={[styles.signInButton, isLoading && styles.disabledButton]}
@@ -115,12 +115,12 @@ export default function SignIn() {
           </Text>
         </TouchableOpacity>
         
-        <View style={styles.signUpContainer}>
+        {/* <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => router.replace('/SignUp')}>
             <Text style={styles.signUpLink}>Sign Up</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
       </ScrollView>
       </View>
