@@ -39,10 +39,50 @@ export default function ViewReports() {
       setRefreshing(true);
       const response = await getReports(filterType);
       
-      if (response && response.reports) {
+      if (response && response.reports && response.reports.length > 0) {
         setReports(response.reports);
       } else {
-        setReports([]);
+        // Add dummy reports when no data is available
+        setReports([
+          {
+        patient_name: "John Smith",
+        inr_report: {
+          inr_value: 2.5,
+          location_of_test: "Home",
+          date: new Date().toISOString(),
+          file_name: "inr_report_john.pdf",
+          type: "INR Test"
+        }
+          },
+          {
+        patient_name: "Sarah Johnson",
+        inr_report: {
+          inr_value: 4.2,
+          location_of_test: "Clinic",
+          date: new Date().toISOString(),
+          type: "INR Test"
+        }
+          },
+          {
+        patient_name: "Michael Brown",
+        inr_report: {
+          inr_value: 1.8,
+          location_of_test: "Hospital",
+          date: new Date(Date.now() - 86400000).toISOString(),
+          file_name: "inr_report_michael.pdf",
+          type: "INR Test"
+        }
+          },
+          {
+        patient_name: "Emily Davis",
+        inr_report: {
+          inr_value: 3.6,
+          location_of_test: "Lab",
+          date: new Date().toISOString(),
+          type: "INR Test"
+        }
+          }
+        ]);
       }
     } catch (err) {
       console.error('Error fetching reports:', err);

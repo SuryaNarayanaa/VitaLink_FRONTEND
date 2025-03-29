@@ -5,9 +5,11 @@ import Drawer from 'expo-router/drawer'
 import CustomDrawer from '@/components/CustomDrawer';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { DrawerOptions } from '@/constants/drawerOptions';
+import {LinearGradient} from 'expo-linear-gradient'
 
 const _layout = () => {
   return (
+    <LinearGradient  colors={['#a7b9ff','#fab7c5']} dither={false} style={{flex:1}}>
     <GestureHandlerRootView style={{flex:1}}>
       <Drawer
         backBehavior='initialRoute' 
@@ -42,12 +44,9 @@ const _layout = () => {
           drawerLabel:"Side Effects",
           headerTitle:"Side Effects"
         }}/>
-        <Drawer.Screen name='Logout' options={{
-          drawerLabel:"Logout",
-          headerTitle:"Logout"
-        }}/>
       </Drawer>
     </GestureHandlerRootView>
+    </LinearGradient>
   )
 }
 
