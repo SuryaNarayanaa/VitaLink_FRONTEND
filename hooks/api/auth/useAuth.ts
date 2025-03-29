@@ -48,19 +48,18 @@ const useAuth = () => {
     }
   };
 
-  /**
-   * Logout user
-   */
   const logout = async (): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log("reaching logout")
       await apiClient.get('/logout');
       await SecureStore.deleteItemAsync('access_token');
       await SecureStore.deleteItemAsync('userRole');
       return true;
     } catch (err: any) {
+      console.log("Logout failed")
       setError(err.response?.data?.detail || 'Logout failed. Please try again.');
       return false;
     } finally {
@@ -74,7 +73,6 @@ const useAuth = () => {
   const checkAuthStatus = async (): Promise<string | null> => {
     try {
       const token = await SecureStore.getItemAsync('access_token');
-      // Test endpoint automatically attaches token via apiClient; no manual header is needed here.
       await apiClient.get('/');
       return token ? await SecureStore.getItemAsync('userRole') : null;
     } catch (err) {
