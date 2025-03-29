@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react'
 import { View, Text, StyleSheet, ViewStyle, StyleProp, Image } from 'react-native'
 import {COLORS} from '../constants/Theme'
+const psgLogo = require('../assets/images/right-logo.png')
+const psgIMSLogo = require('../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png')
 
 interface CustomHeaderProps {
   title: string
@@ -12,15 +14,23 @@ const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
     <View style={styles.headerContainer}>
       <View style={styles.topRow}>
         <View style={styles.leftButton}>{leftButton}</View>
-        <Image
-          style={styles.logo}
-          source={{ uri: 'https://via.placeholder.com/80' }}
-        />
-        <View style={styles.rightPlaceholder} />
+        <View style={styles.logoContainer}>
+          <Image
+            style={styles.psgIMSLogo}
+            source={psgIMSLogo}
+            resizeMode='contain'
+          />
+          <View style={styles.divider} />
+          <Image
+            style={styles.psgLogo}
+            source={psgLogo}
+            resizeMode='contain'
+          />
+        </View>
       </View>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>@ My Profile Page</Text>
+        {/* <Text style={styles.subtitle}>@my Profile Page</Text> */}
       </View>
     </View>
   )
@@ -29,7 +39,7 @@ const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
 const styles = StyleSheet.create({
     headerContainer:{
         backgroundColor:'white',
-        paddingHorizontal:20
+        paddingHorizontal:20,
     },
     header: {
       height: 160,
@@ -39,7 +49,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: 10,
-      marginTop: 30
+      marginTop:30
     },
     leftButton: {
       width: 40
@@ -67,6 +77,27 @@ const styles = StyleSheet.create({
       fontSize: 12,
       color: '#555',
       textAlign:'center'
+    },
+    psgIMSLogo: {
+      width: 100,
+      height: 100,
+    },
+    psgLogo: {
+      width: 100,
+      height: 100,
+    },
+    divider: {
+      width: 2,
+      height: 100,
+      backgroundColor: '#ddd',
+      marginHorizontal: 20,
+    },
+    logoContainer:{
+        flexDirection:'row',
+        flex:1,
+        alignItems:'center',
+        justifyContent:'center',
+        paddingHorizontal:20
     }
 })
 
