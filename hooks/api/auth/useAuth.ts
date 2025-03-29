@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import apiClient from '../apiClient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export interface LoginCredentials {
   username: string;
@@ -10,6 +10,7 @@ export interface LoginCredentials {
 export interface LoginResponse {
   message: string;
   role: 'admin' | 'doctor' | 'patient';
+  access_token: string;
 }
 
 const useAuth = () => {
@@ -34,8 +35,9 @@ const useAuth = () => {
         },
       });
       
-      // Store user role for future use
-      await AsyncStorage.setItem('userRole', response.data.role);
+      // Store access token and user role securely
+      await SecureStore.setItemAsync('access_token', response.data.access_token);
+      await SecureStore.setItemAsync('userRole', response.data.role);
       
       return response.data;
     } catch (err: any) {
@@ -55,7 +57,8 @@ const useAuth = () => {
     
     try {
       await apiClient.get('/logout');
-      await AsyncStorage.removeItem('userRole');
+      await SecureStore.deleteItemAsync('access_token');
+      await SecureStore.deleteItemAsync('userRole');
       return true;
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Logout failed. Please try again.');
@@ -70,14 +73,13 @@ const useAuth = () => {
    */
   const checkAuthStatus = async (): Promise<string | null> => {
     try {
-      // Try to get the stored role
-      const role = await AsyncStorage.getItem('userRole');
-      // Make a test request to verify session is still valid
+      const token = await SecureStore.getItemAsync('access_token');
+      // Test endpoint automatically attaches token via apiClient; no manual header is needed here.
       await apiClient.get('/');
-      return role;
+      return token ? await SecureStore.getItemAsync('userRole') : null;
     } catch (err) {
-      // If request fails, session is likely invalid
-      await AsyncStorage.removeItem('userRole');
+      await SecureStore.deleteItemAsync('access_token');
+      await SecureStore.deleteItemAsync('userRole');
       return null;
     }
   };
