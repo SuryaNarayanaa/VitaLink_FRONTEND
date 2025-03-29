@@ -13,8 +13,15 @@ import {
 } from '@react-navigation/drawer';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthContext } from '@/hooks/ContextProvider';
 
 export default function CustomDrawer(props: DrawerContentComponentProps) {
+  const handleLogout = async() => {
+      const {logout,isLoading,error} = useAuthContext()
+      if(!logout) console.log("There is no logout")
+      await logout();
+  }
+
   const router = useRouter();
 
   const {top,bottom} = useSafeAreaInsets()
@@ -27,8 +34,8 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       >
         <DrawerItemList {...props} />
         <DrawerItem
-          label="Go Home"
-          onPress={() => router.replace('/')}
+          label="Logout"
+          onPress={() => handleLogout()}
           labelStyle={styles.drawerItemLabel}
         />
       </DrawerContentScrollView>
@@ -50,6 +57,8 @@ const styles = StyleSheet.create({
   drawerItemLabel: {
     fontSize: 16,
     color: '#333',
+    borderRadius:0,
+    marginHorizontal:0
   },
   footer: {
     paddingVertical: 15,

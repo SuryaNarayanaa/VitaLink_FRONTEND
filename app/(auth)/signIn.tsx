@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import {HeaderLogos} from '../../components/HeaderLogos'
-import useAuth  from '@/hooks/api/auth/useAuth';
+import { useAuthContext } from '@/hooks/ContextProvider'
 import { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
 
 export default function SignIn() {
@@ -11,7 +11,7 @@ export default function SignIn() {
     username: '',
     password: '',
   });
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading, error } = useAuthContext();
 
   const handleSignIn = async () => {
     if (!credentials.username || !credentials.password) {
@@ -25,44 +25,37 @@ export default function SignIn() {
         
         // Route based on user role
         switch(response.role) {
-          case 'admin':
-        router.replace('/admin');
-        break;
-          case 'doctor':
-        router.replace('/doctor');
-        break;
-          case 'patient':
-        router.replace('/patient');
-        break;
-          default:
-        // router.replace('/dashboard');
+        case 'doctor':
+          router.replace('/doctor');
+          break;
+        case 'patient':
+         router.replace('/patient');
+          break;
+        default:
+          router.replace('/')
         }
       } else {
-        // No role means unauthorized or invalid login
         console.error('Login failed - missing role information');
-        
-        // Clear credentials
         setCredentials({ username: '', password: '' });
-        
-        // Throw error to be caught by the catch block
         throw new Error('Unauthorized access: Invalid role or permissions');
       }
     } catch (err) {
       console.error('Login failed', err);
     }
+    finally{
+      setCredentials({ username: '', password: '' });
+    }
   };
   
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header with logos */}
       <View style={styles.container}>
       <HeaderLogos />
       
-      {/* Sign-in form */}
       
       <ScrollView contentContainerStyle={styles.formContainer}>
       <Text style={styles.title}>Sign in</Text>
-              <Text style={styles.subtitle}>Sign in to your account</Text>
+      <Text style={styles.subtitle}>Sign in to your account</Text>
       <View style={styles.loginBox}>
         
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
