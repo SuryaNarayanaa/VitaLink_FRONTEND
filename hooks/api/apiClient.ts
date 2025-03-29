@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { BASE_URL, API_TIMEOUT } from '@/app/config/env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 
 const apiClient = axios.create({
@@ -14,6 +14,10 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config) => {
+    const token = await SecureStore.getItemAsync('access_token');
+    if (token) {
+      config.headers.set('Authorization', `Bearer ${token}`);
+    }
     return config;
   },
   (error) => {
@@ -22,16 +26,13 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          AsyncStorage.removeItem('userRole');
-          // You might want to implement a navigation solution here or use a context
-          // navigation.navigate('Login');
+          await SecureStore.deleteItemAsync('access_token');
+          await SecureStore.deleteItemAsync('userRole');
           break;
         case 403:
           Alert.alert('Access Denied', 'You do not have permission to perform this action.');

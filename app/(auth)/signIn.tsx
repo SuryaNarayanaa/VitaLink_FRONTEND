@@ -1,66 +1,54 @@
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import axios from 'axios'
-import { BASE_URL } from '../config/env'
 import { router } from 'expo-router'
 import {HeaderLogos} from '../../components/HeaderLogos'
+import useAuth  from '@/hooks/api/auth/useAuth';
+import { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
 
 export default function SignIn() {
-  const [Username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    username: '',
+    password: '',
+  });
+  const { login, isLoading, error } = useAuth();
 
   const handleSignIn = async () => {
-    if (!Username || !password) {
-      setError('Please fill in all fields');
+    if (!credentials.username || !credentials.password) {
       return;
     }
-    console.log(Username, password);
-    
-    setIsLoading(true);
-    setError('');
     
     try {
-      console.log('Sending request...');
-      const formData = new FormData();
-      formData.append('username', Username);
-      formData.append('password', password);
-
-      const response = await axios.post(`${BASE_URL}/login`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await login(credentials);
+      if (response && response.role) {
+        console.log('Login successful', response);
+        
+        // Route based on user role
+        switch(response.role) {
+          case 'admin':
+        router.replace('/admin');
+        break;
+          case 'doctor':
+        router.replace('/doctor');
+        break;
+          case 'patient':
+        router.replace('/patient');
+        break;
+          default:
+        // router.replace('/dashboard');
         }
-      });
-
-      console.log(response.data);
-
-      const data = response.data;
-      
-      // Handle role-based navigation
-      switch (data.role) {
-        case 'admin':
-          router.replace('/admin');
-          break;
-        case 'doctor':
-          router.replace('/doctor');
-          break;
-        case 'patient':
-          router.replace('/patient');
-          break;
-        default:
-          throw new Error('Invalid role received');
+      } else {
+        // No role means unauthorized or invalid login
+        console.error('Login failed - missing role information');
+        
+        // Clear credentials
+        setCredentials({ username: '', password: '' });
+        
+        // Throw error to be caught by the catch block
+        throw new Error('Unauthorized access: Invalid role or permissions');
       }
-
     } catch (err) {
-      setError(
-        axios.isAxiosError(err) 
-          ? err.response?.data?.detail || 'Login failed. Please try again.' 
-          : 'Login failed. Please try again.'
-      );
-    } finally {
-      setIsLoading(false);
+      console.error('Login failed', err);
     }
   };
   
@@ -84,8 +72,8 @@ export default function SignIn() {
           <TextInput
             style={styles.input}
             placeholder="Enter your Username"
-            value={Username}
-            onChangeText={setUsername}
+            value={credentials.username}
+            onChangeText={(text) => setCredentials({...credentials, username: text})}
             autoCapitalize="none"
           />
         </View>
@@ -95,18 +83,14 @@ export default function SignIn() {
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
+            value={credentials.password}
+            onChangeText={(text) => setCredentials({...credentials, password: text})}
             secureTextEntry
           />
         </View>
-        
-        {/* <TouchableOpacity style={styles.forgotContainer}>
-          <Text style={styles.forgotText}>Forgot password?</Text>
-        </TouchableOpacity> */}
-        
-        <TouchableOpacity
-          style={[styles.signInButton, isLoading && styles.disabledButton]}
+
+        <TouchableOpacity 
+          style={styles.signInButton} 
           onPress={handleSignIn}
           disabled={isLoading}
         >
@@ -124,6 +108,7 @@ export default function SignIn() {
       </View>
       </ScrollView>
       </View>
+      
     </SafeAreaView>
   );
 }

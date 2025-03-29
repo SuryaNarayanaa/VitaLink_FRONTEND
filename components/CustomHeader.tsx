@@ -30,7 +30,7 @@ const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
       </View>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>@ My Profile Page</Text>
+        {/* <Text style={styles.subtitle}>@my Profile Page</Text> */}
       </View>
     </View>
   )

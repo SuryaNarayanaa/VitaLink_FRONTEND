@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { BASE_URL } from '../../app/config/env';
-
+import * as SecureStore from 'expo-secure-store';
+import { useDoctor } from '@/hooks/api/doctor/useDoctor';
 // Types based on API response
 interface INRReport {
   inr_value: number;
@@ -20,13 +21,14 @@ interface ReportData {
   inr_report: INRReport;
 }
 
+
 export default function ViewReports() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<ReportData[]>([]);
-  const [error, setError] = useState('');
   const [filterType, setFilterType] = useState('today');
+  
+  const { getReports, isLoading: loading, error } = useDoctor();
 
   useEffect(() => {
     fetchReports();
@@ -34,21 +36,24 @@ export default function ViewReports() {
 
   const fetchReports = async () => {
     try {
-      setLoading(true);
-      setError('');
-      const response = await axios.get(`${BASE_URL}/doctor/reports?typ=${filterType}`);
-      console.log('Reports response:', response.data);
+      setRefreshing(true);
+      const response = await getReports(filterType);
       
-      if (response.data && response.data.reports) {
-        setReports(response.data.reports);
+      if (response && response.reports) {
+        setReports(response.reports);
       } else {
         setReports([]);
       }
     } catch (err) {
       console.error('Error fetching reports:', err);
-      setError('Failed to load reports. Please try again.');
+      
+      // Handle authentication errors if needed
+      if (err instanceof Error && err.message.includes('session expired')) {
+        setTimeout(() => {
+          router.replace('/(auth)/signIn');
+        }, 2000);
+      }
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
@@ -147,7 +152,15 @@ export default function ViewReports() {
 
   return (
     <SafeAreaView style={styles.container}>
-
+      {/* <CustomHeader 
+        title="Patient Reports" 
+        leftButton={
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+        }
+      /> */}
+      
       <View style={styles.filterSection}>
         <TouchableOpacity 
           style={[styles.filterTab, filterType === 'today' && styles.activeTab]}
@@ -200,7 +213,7 @@ export default function ViewReports() {
           }
           ListEmptyComponent={renderEmptyList}
         />
-      )}
+      )}           
     </SafeAreaView>
   );
 }
