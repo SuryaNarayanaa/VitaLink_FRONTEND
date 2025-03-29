@@ -8,7 +8,7 @@ export default function Index() {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const token = await SecureStore.getItemAsync("accessToken");
+        const token = await SecureStore.getItemAsync("access_token");
         const userRole = await SecureStore.getItemAsync("userRole");
         
         if (token && userRole) {
