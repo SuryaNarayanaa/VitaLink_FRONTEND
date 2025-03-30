@@ -1,6 +1,5 @@
 import { Stack, Tabs } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { AuthProvider } from "@/hooks/ContextProvider";
 
 export default function RootLayout() {
   return (
@@ -14,5 +13,5 @@ export default function RootLayout() {
           </Stack>
       </SafeAreaView>
     </SafeAreaProvider>
-  )
+  )
 }
