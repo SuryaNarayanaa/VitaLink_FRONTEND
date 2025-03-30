@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter, useSegments } from 'expo-router';
 import useAuth, { LoginCredentials, LoginResponse } from './api/auth/useAuth';
+import {setOnUnauthorized} from './api/apiClient'
 
 interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<LoginResponse | null>;
@@ -34,22 +35,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const role = token ? (await SecureStore.getItemAsync('userRole')) as 'doctor' | 'patient' : null;
       setAuthData(token, role);
     })();
-  }, []);
+  }, [SecureStore]);
 
   useEffect(() => {
     if (!accessToken) {
       if (segments[0] !== '(auth)') {
-        router.push('/(auth)/signIn');
+        router.replace('/(auth)/signIn'); // Use `replace` to avoid adding to the history stack
       }
       return;
     }
 
     if (userRole === 'doctor' && segments[0] !== 'doctor') {
-      router.push('/doctor');
+      router.replace('/doctor');
     } else if (userRole === 'patient' && segments[0] !== 'patient') {
-      router.push('/patient');
+      router.replace('/patient');
     }
-  }, [accessToken, userRole, segments, router]);
+  }, [accessToken, userRole, segments]);
+
+  useEffect(()=>{
+    setOnUnauthorized(()=>{
+      setAuthData(null, null);
+      router.replace('/(auth)/signIn');
+    })
+  },[])
 
   return (
     <AuthContext.Provider
