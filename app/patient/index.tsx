@@ -1,68 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
-import {Table,Row} from 'react-native-reanimated-table'
-import {COLORS, FONT_FAMILY} from '../../constants/Theme'
-import {processColor} from 'react-native'
-
-const dummyData = {
-  name: 'Sathiya A',
-  age: 47,
-  gender: 'F',
-  targetINR: '2.5 - 3.5',
-  latestINR: 0,
-  doctor: {
-    id: 'DOC00002',
-    name: 'Dr. P. Ramasamy',
-  },
-  therapy: 'Acitrom',
-  therapyStartDate: '24/01/2025',
-  medicalHistory: 'RHD- Post MVR/Recurrent CVA/ 27 years',
-  missedDoses: [
-    '31-01-2025',
-    '30-01-2025',
-    '29-01-2025',
-    '28-02-2025',
-    '28-01-2025',
-    '27-02-2025',
-    '27-01-2025',
-    '26-03-2025',
-    '26-02-2025',  
-    '26-01-2025',
-  ],
-  prescription: {
-    MON: '4.0 mg',
-    TUE: '4.0 mg',
-    WED: '4.0 mg',
-    THU: '4.0 mg',
-    FRI: '4.0 mg',
-    SAT: '4.0 mg',
-    SUN: '4.0 mg',
-  },
-  sideEffects: 'None',
-  lifestyleChanges: 'None',
-  otherMedication: 'None',
-  prolongedIllness: 'None',
-  contact: {
-    phone: '+91 99946 92093',
-    kin: {
-      name: 'Nandini',
-      contact: '+91 98947 69912',
-    },
-  },
-  inrdata: {
-    labels: ["March"],
-    datasets: [
-      {
-        data: [20]
-      }
-    ]
-  },
-  xAxis:{
-    valueFormatter:['Mar','May'],
-    graunlarityEnabled:true,
-    grauularity:1
-  }
-};
+import { Table, Row } from 'react-native-reanimated-table';
+import { COLORS, FONT_FAMILY } from '../../constants/Theme';
+import { usePatient } from '../../hooks/api/patient/usePatient';
 
 const chartConfig = {
   backgroundGradientFrom: "#a7b9ff",
@@ -81,20 +22,122 @@ const chartConfig = {
 };
 
 export default function Profile() {
+  const { getPatientDashboard, isLoading, error } = usePatient();
+
+  interface PatientData {
+    patient: {
+      ID: string;
+      _id: string;
+      name: string;
+      age: number;
+      gender: string;
+      target_inr_min: number;
+      target_inr_max: number;
+      latestINR?: number; // Optional, as it might not exist
+      prescription?: Record<string, string>;
+      doctor: string;
+      therapy: string;
+      therapy_start_date: string;
+      medical_history?: string[];
+      side_effects?: string;
+      lifestyle_changes?: string;
+      other_medication?: string;
+      prolonged_illness?: string;
+      contact: string;
+      kin_name: string;
+      kin_contact: string;
+    };
+    chart_data: { labels: string[]; values: number[] };
+    missed_doses: string[];
+  }
+
+  const [patientData, setPatientData] = useState<PatientData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getPatientDashboard();
+
+      if (data) {
+        try {
+          // Ensure chart_data is an array of objects
+          const chartDataArray = Array.isArray(data.chart_data)
+            ? data.chart_data
+            : Object.entries(data.chart_data).map(([label, value]) => ({ label, value }));
+
+          setPatientData({
+            patient: {
+              ID: data.patient.ID,
+              _id: data.patient._id,
+              name: data.patient.name,
+              age: data.patient.age,
+              gender: data.patient.gender,
+              target_inr_min: data.patient.target_inr_min,
+              target_inr_max: data.patient.target_inr_max,
+              latestINR: data.patient.latestINR || null,
+              prescription: data.patient.prescription || {},
+              doctor: data.patient.doctor,
+              therapy: data.patient.therapy,
+              therapy_start_date: data.patient.therapy_start_date,
+              medical_history: data.patient.medical_history || [],
+              side_effects: data.patient.side_effects || '',
+              lifestyle_changes: data.patient.lifestyle_changes || '',
+              other_medication: data.patient.other_medication || '',
+              prolonged_illness: data.patient.prolonged_illness || '',
+              contact: data.patient.contact,
+              kin_name: data.patient.kin_name,
+              kin_contact: data.patient.kin_contact,
+            },
+            chart_data: {
+              labels: chartDataArray.map((item: any) => item.label || ''), // Ensure labels are strings
+              values: chartDataArray.map((item: any) => item.value || 0), // Ensure values are numbers
+            },
+            missed_doses: data.missed_doses || [],
+          });
+          console.log("after"); // This will execute if no error occurs
+        } catch (error) {
+          console.error("Error setting patient data:", error); // Log any error that occurs
+        }
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary_color} />
+        <Text style={styles.loadingText}>Loading patient data...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  if (!patientData) {
+    return null;
+  }
+
+  const { patient, chart_data, missed_doses } = patientData;
   const tableHead = ['Day', 'Dose'];
-  const tableData = Object.entries(dummyData.prescription).map(([day, dose]) => [day, dose]);
+  const tableData = Object.entries(patient?.prescription || {}).map(([day, dose]) => [day, dose]);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.name}>{dummyData.name}</Text>
-        <Text style={styles.subInfo}>{`(Age: ${dummyData.age}, Gender: ${dummyData.gender})`}</Text>
+        <Text style={styles.name}>{patient.name}</Text>
+        <Text style={styles.subInfo}>{`(Age: ${patient.age}, Gender: ${patient.gender})`}</Text>
 
         <View style={styles.divider} />
 
         <View style={styles.targetInr}>
           <Text style={styles.label}>Target INR:</Text>
-          <Text style={styles.value}>{dummyData.targetINR}</Text>
+          <Text style={styles.value}>{`${patient.target_inr_min} - ${patient.target_inr_max}`}</Text>
         </View>
 
         <View style={styles.divider} />
@@ -102,7 +145,7 @@ export default function Profile() {
         <View style={styles.LatestInrSection}>
           <View style={styles.LatestInrValue}>
             <Text style={styles.label}>Latest INR:</Text>
-            <Text style={styles.value}>{dummyData.latestINR}</Text>
+            <Text style={styles.value}>{patient.latestINR || 'N/A'}</Text>
           </View>
           <Text style={styles.timestamp}>AS OF 00:00</Text>
         </View>
@@ -111,29 +154,34 @@ export default function Profile() {
 
         <View style={styles.table}>
           <Table borderStyle={{ borderWidth: 1, borderColor: '#000' }}>
-            <Row data={['Doctor', dummyData.doctor.id]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Caregiver', dummyData.doctor.name]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Therapy', dummyData.therapy]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Therapy Start Date', dummyData.therapyStartDate]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Doctor', patient.doctor]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Caregiver', patient.kin_name]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Therapy', patient.therapy]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Therapy Start Date', patient.therapy_start_date]} style={styles.tableRow} textStyle={styles.tableText} />
           </Table>
-        </View>
-
-        <View style={styles.medicalHistory}>
-          <Text style={styles.sectionTitle}>Medical History</Text>
-          <Text style={styles.medicalInfo}>{dummyData.medicalHistory}</Text>
         </View>
 
         <View style={styles.chartContainer}>
           <Text style={styles.chartTitle}>INR Values</Text>
-          <View style={{ paddingHorizontal: 20 }}>
-          <BarChart style={styles.chart} data={dummyData.inrdata} 
-          width={Dimensions.get('window').width * 0.75} height={250} yAxisLabel='' 
-          yAxisSuffix="" fromZero={true} withInnerLines={true} chartConfig={chartConfig}/></View>
+          <BarChart
+            style={styles.chart}
+            data={{
+              labels: chart_data.labels,
+              datasets: [{ data: chart_data.values }],
+            }}
+            width={Dimensions.get('window').width * 0.75}
+            height={250}
+            yAxisLabel=""
+            yAxisSuffix=""
+            fromZero={true}
+            withInnerLines={true}
+            chartConfig={chartConfig}
+          />
         </View>
 
         <View style={styles.missedDoses}>
           <Text style={styles.sectionTitle}>MISSED DOSES:</Text>
-          {dummyData.missedDoses.map((date, index) => (
+          {missed_doses.map((date, index) => (
             <View key={index} style={styles.listItem}>
               <View style={styles.listDot} />
               <Text style={styles.missedDate}>{date}</Text>
@@ -141,9 +189,10 @@ export default function Profile() {
           ))}
         </View>
 
+        {/* Prescription Table */}
         <View style={styles.prescriptionTable}>
           <Text style={styles.sectionTitle}>Prescription</Text>
-          <Table borderStyle={{ borderWidth: 1, borderColor: '#000 ' }}>
+          <Table borderStyle={{ borderWidth: 1, borderColor: '#000' }}>
             <Row data={tableHead} style={styles.tableHeader} textStyle={styles.tableHeaderText} />
             {tableData.map((rowData, index) => (
               <Row
@@ -156,18 +205,20 @@ export default function Profile() {
           </Table>
         </View>
 
+        {/* Additional Information */}
         <View style={styles.additionalInfo}>
-          <Text style={styles.infoText}>SIDE EFFECTS: {dummyData.sideEffects}</Text>
-          <Text style={styles.infoText}>LIFESTYLE CHANGES: {dummyData.lifestyleChanges}</Text>
-          <Text style={styles.infoText}>OTHER MEDICATION: {dummyData.otherMedication}</Text>
-          <Text style={styles.infoText}>PROLONGED ILLNESS: {dummyData.prolongedIllness}</Text>
+          <Text style={styles.infoText}>SIDE EFFECTS: {patient.side_effects || 'None'}</Text>
+          <Text style={styles.infoText}>LIFESTYLE CHANGES: {patient.lifestyle_changes || 'None'}</Text>
+          <Text style={styles.infoText}>OTHER MEDICATION: {patient.other_medication || 'None'}</Text>
+          <Text style={styles.infoText}>PROLONGED ILLNESS: {patient.prolonged_illness || 'None'}</Text>
         </View>
 
+        {/* Contact Table */}
         <View style={styles.contactTable}>
           <Table borderStyle={{ borderWidth: 1, borderColor: '#000' }}>
-            <Row data={['Contact', dummyData.contact.phone]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Kin Name', dummyData.contact.kin.name]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Kin Contact', dummyData.contact.kin.contact]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Contact', patient.contact]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Kin Name', patient.kin_name]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Kin Contact', patient.kin_contact]} style={styles.tableRow} textStyle={styles.tableText} />
           </Table>
         </View>
       </View>
@@ -341,6 +392,25 @@ const styles = StyleSheet.create({
   },
   contactTable: {
     marginTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: COLORS.primary_color,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
   },
 });
 

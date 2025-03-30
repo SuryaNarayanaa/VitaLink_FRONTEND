@@ -21,15 +21,14 @@ export default function SignIn() {
     try {
       const response = await login(credentials);
       if (response && response.role) {
-        console.log('Login successful', response);
-        
+
         // Route based on user role
         switch(response.role) {
         case 'doctor':
           router.replace('/doctor');
           break;
         case 'patient':
-         router.replace('/patient');
+          router.replace('/patient');
           break;
         default:
           router.replace('/')

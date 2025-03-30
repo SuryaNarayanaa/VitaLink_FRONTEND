@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { COLORS, FONT_FAMILY } from '@/constants/Theme';
+import { Check, X, Clock, CircleAlert as AlertCircle } from 'lucide-react-native';
 
 const ITEMS_PER_PAGE = 10; 
 
@@ -90,16 +91,21 @@ export default function TakeDosage() {
             ))}
           </View>
 
-          <Text style={[styles.sectionTitle, styles.fullListTitle]}>
-            Full Missed Doses
-          </Text>
-
-          <View style={styles.missedDosesGrid}>
-            {getPaginatedData().map((date) => (
-              <View key={date} style={styles.missedDoseCard}>
-                <Text style={styles.missedDoseText}>{date}</Text>
+          <View style={styles.missedDosesSection}>
+            <Text style={styles.sectionTitle}>Missed Doses</Text>
+            <Text style={styles.sectionSubtitle}>Recent missed medications</Text>
+            <View style={styles.missedDosesGrid}>
+            {getPaginatedData().map((dose,index) => (
+              <View key={index} style={styles.missedDoseItem}>
+                <View style={styles.missedDoseHeader}>
+                  <AlertCircle size={20} color="#FF5252" />
+                </View>
+                <Text style={styles.missedDoseMedication}>
+                  {dose}
+                </Text>
               </View>
             ))}
+            </View>
           </View>
 
           <View style={styles.paginationControls}>
@@ -194,44 +200,12 @@ const styles = StyleSheet.create({
   fullListTitle: {
     marginTop: 20,
   },
-  missedDosesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  missedDoseCard: {
-    backgroundColor: '#FFCDD2',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 15,
-    width: '45%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3, 
-    borderWidth: 1,
-    borderColor: '#E57373',
-  },
-  missedDoseText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#B71C1C', // Dark red for text
-    textAlign: 'center',
-  },
-  missedDoseIcon: {
-    fontSize: 24,
-    color: '#B71C1C', // Dark red for icon
-    marginBottom: 8,
-  },
   paginationControls: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
+    paddingHorizontal:10,
   },
   paginationButton: {
     backgroundColor: '#007BFF',
@@ -257,5 +231,53 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 8,
     paddingLeft: 10,
+  },
+
+  missedDosesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+
+  missedDosesSection: {
+    marginTop: 20,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 15,
+  },
+  missedDoseItem: {
+    backgroundColor: '#f8f9fa',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF5252',
+    flexDirection:'row',
+    alignItems:'center',
+    gap:10,
+    width: '45%',
+  },
+  missedDoseHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  missedDoseDate: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginLeft: 8,
+  },
+  missedDoseMedication: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 4,
+  },
+  missedDoseReason: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });

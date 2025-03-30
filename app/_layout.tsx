@@ -7,7 +7,7 @@ export default function RootLayout() {
     <AuthProvider>
     <SafeAreaProvider>
       <SafeAreaView style={{flex:1}}>
-          <Stack screenOptions={{headerTitleAlign:'center', headerShown:true}}>
+          <Stack screenOptions={{headerTitleAlign:'center', headerShown:false}}>
               <Stack.Screen name='(auth)/signIn' options={{title:"Patient"}}/>
               <Stack.Screen name="index" options={{title:'Home Page'}}/>
               <Stack.Screen name="doctor" options={{title:"Doctor"}}/>

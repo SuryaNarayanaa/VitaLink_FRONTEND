@@ -38,8 +38,11 @@ const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
 
 const styles = StyleSheet.create({
     headerContainer:{
-        backgroundColor:'white',
-        paddingHorizontal:20,
+      backgroundColor:'white',
+      paddingHorizontal:20,
+      paddingBottom:10,
+      borderBottomLeftRadius:20,
+      borderBottomRightRadius:20
     },
     header: {
       height: 160,
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
     },
     title: {
       fontSize: 18,
-      fontWeight: 'bold'
+      fontWeight: '600'
     },
     subtitle: {
       marginTop: 4,
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
         flex:1,
         alignItems:'center',
         justifyContent:'center',
-        paddingHorizontal:20
+        paddingHorizontal:20,
     }
 })
 
