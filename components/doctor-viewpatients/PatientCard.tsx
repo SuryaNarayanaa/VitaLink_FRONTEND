@@ -7,7 +7,7 @@ import {
   StyleSheet, 
   Modal 
 } from 'react-native';
-import { Patient } from '../data/mockPatients';
+import { Patient } from '../../constants/data/mockPatients';
 
 interface PatientCardProps {
   patient: Patient;

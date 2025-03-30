@@ -4,14 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import {HeaderLogos} from '../../components/HeaderLogos'
 import { useAuthContext } from '@/hooks/ContextProvider'
-import { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
+import useAuth, { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     username: '',
     password: '',
   });
-  const { login, isLoading, error } = useAuthContext();
+  const { login, isLoading, error } = useAuth();
 
   const handleSignIn = async () => {
     if (!credentials.username || !credentials.password) {

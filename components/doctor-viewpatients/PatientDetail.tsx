@@ -9,7 +9,7 @@ import {
   TextInput,
   Switch 
 } from 'react-native';
-import { Patient } from '../data/mockPatients';
+import { Patient } from '../../constants/data/mockPatients';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 

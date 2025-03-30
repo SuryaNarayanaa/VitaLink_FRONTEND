@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { format } from 'date-fns';
-import { patients } from '../data/mockPatients';
-import PatientCard from '../comp/PatientCard';
-import PatientTable from '../comp/PatientTable';
-import PatientDetail from '../comp/PatientDetail';
-import {Patient} from '../data/mockPatients';
+import { patients } from '../../../constants/data/mockPatients';
+import PatientCard from '../PatientCard';
+import PatientTable from '../PatientTable';
+import PatientDetail from '../PatientDetail';
+import {Patient} from '../../../constants/data/mockPatients';
 
 type ViewMode = 'cards' | 'table';
 

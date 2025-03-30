@@ -1,5 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import Patients from "./(ViewPatients)/pages/Patients"; // Adjust the import path as necessary
+import Patients from "../../components/doctor-viewpatients/pages/Patients"; // Adjust the import path as necessary
 
 // Define the RootStackParamList to type our navigation
 type RootStackParamList = {
