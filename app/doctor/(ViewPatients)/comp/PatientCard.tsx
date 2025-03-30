@@ -1,116 +1,178 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Patient } from '../types';
-import { COLORS } from '../constants/Theme';
+
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Modal 
+} from 'react-native';
+import { Patient } from '../data/mockPatients';
 
 interface PatientCardProps {
   patient: Patient;
-  onReassignDoctor: (patientId: string) => void;
-  onReassignCaretaker: (patientId: string) => void;
+  onViewPatient: (patient: Patient) => void;
 }
 
-const PatientCard = ({ patient, onReassignDoctor, onReassignCaretaker }: PatientCardProps) => {
-  const router = useRouter();
+const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [showCaretakerModal, setShowCaretakerModal] = useState(false);
 
   return (
     <View style={styles.card}>
-      {/* Patient Name and Info */}
       <Text style={styles.name}>{patient.name}</Text>
       <Text style={styles.info}>Age: {patient.age}, Gender: {patient.gender}</Text>
+      
+      {isExpanded && (
+        <View style={styles.optionsContainer}>
+          <TouchableOpacity 
+            style={[styles.button, styles.amberButton]}
+            onPress={() => setShowDoctorModal(true)}
+          >
+            <Text style={styles.buttonText}>Reassign Doctor</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.button, styles.amberButton]}
+            onPress={() => setShowCaretakerModal(true)}
+          >
+            <Text style={styles.buttonText}>Reassign Caretaker</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.button, styles.blueButton]}
+            onPress={() => onViewPatient(patient)}
+          >
+            <Text style={styles.buttonText}>View Patient</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      
+      <TouchableOpacity 
+        onPress={() => setIsExpanded(!isExpanded)}
+        style={styles.toggleButton}
+      >
+        <Text style={styles.toggleButtonText}>
+          {isExpanded ? 'Hide Options' : 'Show Options'}
+        </Text>
+      </TouchableOpacity>
 
-      {/* Actions */}
-      <View style={styles.actions}>
-        {/* Reassign Doctor Button */}
-        <TouchableOpacity
-          style={styles.amberButton}
-          onPress={() => {
-            try {
-              onReassignDoctor(patient.id);
-            } catch (error) {
-              console.error('Failed to reassign doctor:', error);
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>Reassign Doctor</Text>
-        </TouchableOpacity>
+      {/* Modals would go here - simplified for this example */}
+      <Modal
+        visible={showDoctorModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Reassign Doctor</Text>
+            <Text>Current Doctor: {patient.doctorName}</Text>
+            <TouchableOpacity 
+              style={styles.modalButton}
+              onPress={() => setShowDoctorModal(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
-        {/* Reassign Caretaker Button */}
-        <TouchableOpacity
-          style={styles.amberButton}
-          onPress={() => {
-            try {
-              onReassignCaretaker(patient.id);
-            } catch (error) {
-              console.error('Failed to reassign caretaker:', error);
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>Reassign Caretaker</Text>
-        </TouchableOpacity>
-
-        {/* View Patient Button */}
-        <TouchableOpacity
-          style={styles.blueButton}
-          onPress={() => {
-            try {
-                console.log(`Navigating to /doctor/ViewPatients/patients/${patient.id}`);
-                router.push(`/doctor/ViewPatients/patients/${patient.id}`);
-            } catch (error) {
-              console.error('Failed to navigate to patient details:', error);
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>View Patient</Text>
-        </TouchableOpacity>
-      </View>
+      <Modal
+        visible={showCaretakerModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Reassign Caretaker</Text>
+            <Text>Current Caretaker: {patient.caretakerName}</Text>
+            <TouchableOpacity 
+              style={styles.modalButton}
+              onPress={() => setShowCaretakerModal(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
-    shadowColor: COLORS.black,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   info: {
     fontSize: 14,
-    color: COLORS.secondary,
-    marginBottom: 10,
+    color: 'gray',
+    marginBottom: 12,
   },
-  actions: {
-    marginTop: 10,
+  optionsContainer: {
+    marginTop: 12,
+    gap: 8,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    alignItems: 'center',
   },
   amberButton: {
-    backgroundColor: COLORS.amber,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginBottom: 8,
+    backgroundColor: '#FFC107',
   },
   blueButton: {
-    backgroundColor: COLORS.blue,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    alignItems: 'center',
+    backgroundColor: '#2196F3',
   },
   buttonText: {
-    color: COLORS.white,
+    color: 'white',
     fontWeight: '500',
+  },
+  toggleButton: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  toggleButtonText: {
+    color: '#2196F3',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  modalButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 16,
   },
 });
 
