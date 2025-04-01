@@ -11,97 +11,28 @@ interface CustomHeaderProps {
 
 const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
   return (
-    <View style={styles.headerContainer}>
-      <View style={styles.topRow}>
-        <View style={styles.leftButton}>{leftButton}</View>
-        <View style={styles.logoContainer}>
+    <View className='bg-white flex items-center py-5 w-full rounded-b-2xl'>
+      <View className='relative w-full flex flex-row items-center justify-around px-5'>
+        <View className=''>{leftButton}</View>
+        <View className='flex-1 flex-row items-center justify-center gap-x-5 pr-10'>
           <Image
-            style={styles.psgIMSLogo}
+            className='w-[80px] h-[80px]'
             source={psgIMSLogo}
             resizeMode='contain'
           />
-          <View style={styles.divider} />
+          <View className='w-[2px] h-[80px] bg-[#ddd]'/>
           <Image
-            style={styles.psgLogo}
+            className='w-[100px] h-[100px]'
             source={psgLogo}
             resizeMode='contain'
           />
         </View>
       </View>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>{title}</Text>
-        {/* <Text style={styles.subtitle}>@my Profile Page</Text> */}
+      <View className='flex flex-row items-center justify-center'>
+        <Text className='text-center text-xl font-semibold text-[#2f2929]'>@ {title} Page</Text>
       </View>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-    headerContainer:{
-      backgroundColor:'white',
-      paddingHorizontal:20,
-      paddingBottom:10,
-      borderBottomLeftRadius:20,
-      borderBottomRightRadius:20
-    },
-    header: {
-      height: 160,
-      justifyContent: 'flex-start'
-    },
-    topRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 10,
-      marginTop:30
-    },
-    leftButton: {
-      width: 40
-    },
-    logo: {
-      flex: 1,
-      width: 60,
-      height: 60,
-      resizeMode: 'contain',
-      marginLeft: 40
-    },
-    rightPlaceholder: {
-      width: 40
-    },
-    titleContainer: {
-      alignItems: 'center',
-      marginTop: 10
-    },
-    title: {
-      fontSize: 18,
-      fontWeight: '600'
-    },
-    subtitle: {
-      marginTop: 4,
-      fontSize: 12,
-      color: '#555',
-      textAlign:'center'
-    },
-    psgIMSLogo: {
-      width: 100,
-      height: 100,
-    },
-    psgLogo: {
-      width: 100,
-      height: 100,
-    },
-    divider: {
-      width: 2,
-      height: 100,
-      backgroundColor: '#ddd',
-      marginHorizontal: 20,
-    },
-    logoContainer:{
-        flexDirection:'row',
-        flex:1,
-        alignItems:'center',
-        justifyContent:'center',
-        paddingHorizontal:20,
-    }
-})
 
 export default CustomHeader

@@ -34,8 +34,6 @@ const useAuth = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
-      // Store access token and user role securely
       await SecureStore.setItemAsync('access_token', response.data.access_token);
       await SecureStore.setItemAsync('userRole', response.data.role);
       

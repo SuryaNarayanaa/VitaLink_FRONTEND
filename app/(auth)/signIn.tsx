@@ -1,17 +1,34 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import React, { useState,useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 import {HeaderLogos} from '../../components/HeaderLogos'
-import { useAuthContext } from '@/hooks/ContextProvider'
-import { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
+import useAuth, { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     username: '',
     password: '',
   });
-  const { login, isLoading, error } = useAuthContext();
+  const { login, isLoading, error } = useAuth();
+
+
+  useEffect(() => {
+      const redirect = async () => {
+        try{
+          const token = await SecureStore.getItemAsync('access_token');
+          const userRole = await SecureStore.getItemAsync('userRole');
+          if(token){
+            if(userRole === 'doctor') router.replace('/doctor')
+            else if(userRole === 'patient') router.replace('/patient/Profile')
+          }
+        }catch(error){
+            Alert.alert("Error during Initialing The user")
+        }
+      }
+      redirect()
+  },[])
 
   const handleSignIn = async () => {
     if (!credentials.username || !credentials.password) {
@@ -20,9 +37,8 @@ export default function SignIn() {
     
     try {
       const response = await login(credentials);
+      console.log(response)
       if (response && response.role) {
-
-        // Route based on user role
         switch(response.role) {
         case 'doctor':
           router.replace('/doctor');
@@ -30,8 +46,6 @@ export default function SignIn() {
         case 'patient':
           router.replace('/patient');
           break;
-        default:
-          router.replace('/')
         }
       } else {
         console.error('Login failed - missing role information');
