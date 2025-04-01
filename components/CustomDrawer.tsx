@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/api';
 import { Ionicons } from '@expo/vector-icons';
 import {router} from 'expo-router'
+import { usePatientContext } from '@/hooks/context/PatientContext';
 
 
 export const CustomDrawerLabel = ({ iconName, label }: { iconName: keyof typeof Ionicons.glyphMap; label: string }) => (
@@ -41,7 +42,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   };
 
   const { top, bottom } = useSafeAreaInsets();
-
+  
   return (
     <View className='flex-1 rounded-none mt-[100px]'>
       <DrawerContentScrollView
@@ -63,7 +64,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       </DrawerContentScrollView>
 
       <View className='py-[15px] px-[20px] border-t-[1px] border-t-[#ccc] items-center'>
-        <Text style={styles.footerText}>Dummy Doctor or Patient</Text>
+        <Text style={styles.footerText}>Dummy Patient or Doctor</Text>
         <Text style={styles.footerSubText}>Position</Text>
       </View>
     </View>
@@ -82,3 +83,4 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 });
+

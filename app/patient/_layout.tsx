@@ -2,15 +2,16 @@ import 'react-native-gesture-handler'
 import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Drawer from 'expo-router/drawer'
-import { createDrawerNavigator, DrawerContentComponentProps } from '@react-navigation/drawer'
+import { DrawerContentComponentProps } from '@react-navigation/drawer'
 import CustomDrawer from '@/components/CustomDrawer';
 import { DrawerOptions } from '@/constants/drawerOptions';
 import { LinearGradient } from 'expo-linear-gradient'
 import { CustomDrawerLabel } from '@/components/CustomDrawer'
-
+import { PatientProvider, usePatientContext } from '@/hooks/context/PatientContext' 
 
 const PatientLayout = () => {
   return (
+    <PatientProvider>
     <LinearGradient colors={['#a7b9ff', '#fab7c5']} dither={false} style={{ flex: 1 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer
@@ -70,6 +71,7 @@ const PatientLayout = () => {
         </Drawer>
       </GestureHandlerRootView>
     </LinearGradient>
+    </PatientProvider>
   );
 };
 
