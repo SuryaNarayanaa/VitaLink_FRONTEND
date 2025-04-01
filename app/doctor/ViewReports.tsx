@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
@@ -20,7 +20,6 @@ interface ReportData {
   patient_name: string;
   inr_report: INRReport;
 }
-
 
 export default function ViewReports() {
   const router = useRouter();
@@ -262,6 +261,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
+    // Add padding for notch on iOS
+    paddingTop: Platform.OS === 'ios' ? 0 : 10,
   },
   backButton: {
     padding: 8,
@@ -306,11 +307,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   reportHeader: {
     flexDirection: 'row',
@@ -352,7 +359,7 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: Platform.OS === 'ios' ? 12 : 16, // Different border radius per platform
   },
   statusText: {
     color: '#fff',
@@ -366,6 +373,15 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    // Add touch feedback appropriate for each platform
+    ...Platform.select({
+      android: {
+        paddingVertical: 2, // Android needs more touch area
+      },
+      ios: {
+        paddingVertical: 4,
+      },
+    }),
   },
   viewDetailsText: {
     fontSize: 14,
@@ -398,7 +414,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     backgroundColor: '#E41E4F',
-    paddingVertical: 10,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 8,
     paddingHorizontal: 20,
     borderRadius: 8,
   },
