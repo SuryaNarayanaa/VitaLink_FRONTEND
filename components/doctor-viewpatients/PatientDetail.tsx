@@ -7,11 +7,12 @@ import {
   StyleSheet, 
   ScrollView,
   TextInput,
-  Switch 
+  Switch,
+  SafeAreaView,
+  Dimensions
 } from 'react-native';
-import { Patient } from '../../constants/data/mockPatients';
+import { Patient } from '@/constants/data/mockPatients';
 import { LineChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
 
 interface PatientDetailProps {
   patient: Patient;
@@ -29,8 +30,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   | 'FRI'
   | 'SAT'
   | 'SUN';
-
-  const [dosage, setDosage] = useState<Record<Day, string>>({
+  const [dosage, setDosage] = useState({
     MON: "4",
     TUE: "4",
     WED: "4",
@@ -73,219 +73,236 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   const renderTabContent = () => {
     if (activeTab === 'inr') {
       return (
-        <ScrollView>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>INR Values</Text>
-            <LineChart
-              data={inrData}
-              width={Dimensions.get('window').width - 40}
-              height={220}
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(136, 132, 216, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: '#8884d8',
-                },
-              }}
-              bezier
-              style={styles.chart}
-            />
+        <ScrollView style={styles.tabContentContainer}>
+          <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>INR Values</Text>
+              <LineChart
+                data={inrData}
+                width={Dimensions.get('window').width - 40}
+                height={220}
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => `rgba(136, 132, 216, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '6',
+                    strokeWidth: '2',
+                    stroke: '#8884d8',
+                  },
+                }}
+                bezier
+                style={styles.chart}
+              />
+              
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>View INR Reports</Text>
+              </TouchableOpacity>
+            </View>
             
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>View INR Reports</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>MISSED DOSES:</Text>
-            <ScrollView style={styles.missedDosesContainer}>
-              {patient.missedDoses.map((date, index) => (
-                <View key={index} style={styles.missedDoseItem}>
-                  <Text>{date}</Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Prescription</Text>
-            {!editMode ? (
-              <View style={styles.prescriptionTable}>
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.tableHeaderCell, styles.dayCell]}>Day</Text>
-                  <Text style={[styles.tableHeaderCell, styles.doseCell]}>Dosage</Text>
-                </View>
-                {Object.entries(patient.prescription).map(([day, dose]) => (
-                  <View key={day} style={styles.tableRow}>
-                    <Text style={[styles.tableCell, styles.dayCell]}>{day}</Text>
-                    <Text style={[styles.tableCell, styles.doseCell]}>{dose}</Text>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>MISSED DOSES:</Text>
+              <ScrollView style={styles.missedDosesContainer} nestedScrollEnabled={true}>
+                {patient.missedDoses.map((date, index) => (
+                  <View key={index} style={styles.missedDoseItem}>
+                    <Text>{date}</Text>
                   </View>
                 ))}
-              </View>
-            ) : (
-              <View style={styles.editDosageContainer}>
-                {(Object.keys(dosage) as Day[]).map(day => (
-                  <View key={day} style={styles.dosageRow}>
-                    <Switch 
-                      value={true} 
-                      onValueChange={(checked) => toggleDay(day, checked)}
-                    />
-                    <Text style={styles.dayText}>{day}</Text>
-                    <TextInput 
-                      key ={day}  
-                      style={styles.dosageInput}
-                      value={dosage[day]} 
-                      onChangeText={(text) => handleDosageChange(day, text)} 
-                      keyboardType="numeric"
-                    />
-                    <Text>mg</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+              </ScrollView>
+            </View>
             
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handleEditDosage}
-            >
-              <Text style={styles.buttonText}>
-                {editMode ? "Save Dosage" : "Edit Dosage"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Prescription</Text>
+              {!editMode ? (
+                <View style={styles.prescriptionTable}>
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.tableHeaderCell, styles.dayCell]}>Day</Text>
+                    <Text style={[styles.tableHeaderCell, styles.doseCell]}>Dosage</Text>
+                  </View>
+                  <ScrollView nestedScrollEnabled={true}>
+                    {Object.entries(patient.prescription).map(([day, dose]) => (
+                      <View key={day} style={styles.tableRow}>
+                        <Text style={[styles.tableCell, styles.dayCell]}>{day}</Text>
+                        <Text style={[styles.tableCell, styles.doseCell]}>{dose}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              ) : (
+                <ScrollView style={styles.editDosageContainer} nestedScrollEnabled={true}>
+                  {(Object.keys(dosage) as Day[]).map(day => (
+                    <View key={day} style={styles.dosageRow}>
+                      <Switch 
+                        value={true} 
+                        onValueChange={(checked) => toggleDay(day, checked)}
+                      />
+                      <Text style={styles.dayText}>{day}</Text>
+                      <TextInput 
+                        style={styles.dosageInput}
+                        value={dosage[day]} 
+                        onChangeText={(text) => handleDosageChange(day, text)} 
+                        keyboardType="numeric"
+                      />
+                      <Text>mg</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+              
+              <TouchableOpacity 
+                style={styles.button}
+                onPress={handleEditDosage}
+              >
+                <Text style={styles.buttonText}>
+                  {editMode ? "Save Dosage" : "Edit Dosage"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Add extra padding at the bottom to ensure scrollability */}
+            <View style={styles.bottomPadding} />
+          </ScrollView>
         </ScrollView>
       );
     } else {
       return (
-        <ScrollView>
-          <View style={styles.noteSection}>
-            <Text style={styles.noteLabel}>SIDE EFFECTS:</Text>
-            <Text style={styles.noteText}>{patient.sideEffects || "None"}</Text>
-            
-            <Text style={styles.noteLabel}>LIFESTYLE CHANGES:</Text>
-            <Text style={styles.noteText}>{patient.lifestyleChanges || "None"}</Text>
-            
-            <Text style={styles.noteLabel}>OTHER MEDICATION:</Text>
-            <Text style={styles.noteText}>{patient.otherMedication || "None"}</Text>
-            
-            <Text style={styles.noteLabel}>PROLONGED ILLNESS:</Text>
-            <Text style={styles.noteText}>{patient.prolongedIllness || "None"}</Text>
-          </View>
-          
-          <View style={styles.contactsSection}>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>Contact:</Text>
-              <Text style={styles.contactValue}>{patient.contact}</Text>
+        <View style={styles.tabContentContainer}>
+          <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
+            <View style={styles.noteSection}>
+              <Text style={styles.noteLabel}>SIDE EFFECTS:</Text>
+              <Text style={styles.noteText}>{patient.sideEffects || "None"}</Text>
+              
+              <Text style={styles.noteLabel}>LIFESTYLE CHANGES:</Text>
+              <Text style={styles.noteText}>{patient.lifestyleChanges || "None"}</Text>
+              
+              <Text style={styles.noteLabel}>OTHER MEDICATION:</Text>
+              <Text style={styles.noteText}>{patient.otherMedication || "None"}</Text>
+              
+              <Text style={styles.noteLabel}>PROLONGED ILLNESS:</Text>
+              <Text style={styles.noteText}>{patient.prolongedIllness || "None"}</Text>
             </View>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>Kin Name:</Text>
-              <Text style={styles.contactValue}>{patient.kinName}</Text>
+            
+            <View style={styles.contactsSection}>
+              <View style={styles.contactRow}>
+                <Text style={styles.contactLabel}>Contact:</Text>
+                <Text style={styles.contactValue}>{patient.contact}</Text>
+              </View>
+              <View style={styles.contactRow}>
+                <Text style={styles.contactLabel}>Kin Name:</Text>
+                <Text style={styles.contactValue}>{patient.kinName}</Text>
+              </View>
+              <View style={styles.contactRow}>
+                <Text style={styles.contactLabel}>Kin Contact:</Text>
+                <Text style={styles.contactValue}>{patient.kinContact}</Text>
+              </View>
             </View>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>Kin Contact:</Text>
-              <Text style={styles.contactValue}>{patient.kinContact}</Text>
-            </View>
-          </View>
-        </ScrollView>
+            
+            {/* Add extra padding at the bottom to ensure scrollability */}
+            <View style={styles.bottomPadding} />
+          </ScrollView>
+        </View>
       );
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={onBack}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <View style={styles.patientHeader}>
-          <Text style={styles.patientName}>{patient.name}</Text>
-          <Text style={styles.patientInfo}>(Age: {patient.age}, Gender: {patient.gender})</Text>
+    <SafeAreaView style={styles.container}>
+      {/* Fixed Header Section */}
+      <View style={styles.fixedHeader}>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={onBack}
+          >
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+          <View style={styles.patientHeader}>
+            <Text style={styles.patientName}>{patient.name}</Text>
+            <Text style={styles.patientInfo}>(Age: {patient.age}, Gender: {patient.gender})</Text>
+          </View>
+        </View>
+
+        <View style={styles.targetINRContainer}>
+          <View>
+            <Text style={styles.targetINRLabel}>Target INR:</Text>
+            <Text style={styles.targetINRValue}>
+              {patient.targetINR.min} - {patient.targetINR.max}
+            </Text>
+          </View>
+          
+          <View>
+            <Text style={styles.latestINRLabel}>Latest INR: {patient.latestINR}</Text>
+            <Text style={styles.latestINRDate}>
+              AS OF {new Date(patient.latestINRDate).toLocaleDateString()}
+            </Text>
+          </View>
         </View>
       </View>
 
-      <View style={styles.targetINRContainer}>
-        <View>
-          <Text style={styles.targetINRLabel}>Target INR:</Text>
-          <Text style={styles.targetINRValue}>
-            {patient.targetINR.min} - {patient.targetINR.max}
-          </Text>
-        </View>
-        
-        <View>
-          <Text style={styles.latestINRLabel}>Latest INR: {patient.latestINR}</Text>
-          <Text style={styles.latestINRDate}>
-            AS OF {new Date(patient.latestINRDate).toLocaleDateString()}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.infoGrid}>
-        <View style={styles.infoTable}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Doctor</Text>
-            <Text style={styles.infoValue}>{patient.doctorName}</Text>
+      {/* Scrollable Content Section */}
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.infoGrid}>
+          <View style={styles.infoTable}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Doctor</Text>
+              <Text style={styles.infoValue}>{patient.doctorName}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Caregiver</Text>
+              <Text style={styles.infoValue}>{patient.caretakerName}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Therapy</Text>
+              <Text style={styles.infoValue}>{patient.therapy}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Therapy Start Date</Text>
+              <Text style={styles.infoValue}>{patient.therapyStartDate}</Text>
+            </View>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Caregiver</Text>
-            <Text style={styles.infoValue}>{patient.caretakerName}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Therapy</Text>
-            <Text style={styles.infoValue}>{patient.therapy}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Therapy Start Date</Text>
-            <Text style={styles.infoValue}>{patient.therapyStartDate}</Text>
-          </View>
-        </View>
-        
-        <View style={styles.infoTable}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Medical History</Text>
-            <Text style={styles.infoValue}>{patient.medicalHistory}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}></Text>
-            <Text style={styles.infoValue}>{patient.medicalHistoryYears} years</Text>
-          </View>
+          
+          <View style={styles.infoTable}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Medical History</Text>
+              <Text style={styles.infoValue}>{patient.medicalHistory}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}></Text>
+              <Text style={styles.infoValue}>{patient.medicalHistoryYears} years</Text>
+            </View>
         </View>
       </View>
 
       <View style={styles.tabContainer}>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'inr' && styles.activeTab]}
-          onPress={() => setActiveTab('inr')}
-        >
-          <Text style={[styles.tabText, activeTab === 'inr' && styles.activeTabText]}>
-            INR & Dosage
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'notes' && styles.activeTab]}
-          onPress={() => setActiveTab('notes')}
-        >
-          <Text style={[styles.tabText, activeTab === 'notes' && styles.activeTabText]}>
-            Notes & Contacts
-          </Text>
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.tabContent}>
-        {renderTabContent()}
-      </View>
-    </View>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'inr' && styles.activeTab]}
+            onPress={() => setActiveTab('inr')}
+          >
+            <Text style={[styles.tabText, activeTab === 'inr' && styles.activeTabText]}>
+              INR & Dosage
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'notes' && styles.activeTab]}
+            onPress={() => setActiveTab('notes')}
+          >
+            <Text style={[styles.tabText, activeTab === 'notes' && styles.activeTabText]}>
+              Notes & Contacts
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.tabContent}>
+          {renderTabContent()}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -293,8 +310,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 10,
+  },
+  fixedHeader: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   header: {
     flexDirection: 'row',
@@ -323,10 +345,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 16,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    marginBottom: 16,
   },
   targetINRLabel: {
     fontSize: 16,
@@ -343,6 +361,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'gray',
   },
+scrollContainer: {
+  flex: 1,
+},
+scrollContent: {
+  padding: 16,
+},
   infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -393,7 +417,15 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     flex: 1,
-    paddingTop: 16,
+  },
+  tabContentContainer: {
+    flex: 1,
+  },
+  tabScrollContent: {
+    flex: 1,
+  },
+  scrollContentContainer: {
+    paddingBottom: 20,
   },
   section: {
     marginBottom: 24,
@@ -435,6 +467,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
     borderRadius: 4,
+    maxHeight: 200,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -462,6 +495,7 @@ const styles = StyleSheet.create({
   },
   editDosageContainer: {
     marginVertical: 8,
+    maxHeight: 200,
   },
   dosageRow: {
     flexDirection: 'row',
@@ -514,6 +548,9 @@ const styles = StyleSheet.create({
   contactValue: {
     flex: 1,
     padding: 8,
+  },
+  bottomPadding: {
+    height: 10, // Increased bottom padding for better scrolling
   },
 });
 

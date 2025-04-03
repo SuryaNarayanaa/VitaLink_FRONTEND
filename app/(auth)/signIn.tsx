@@ -44,7 +44,7 @@ export default function SignIn() {
           router.replace('/doctor');
           break;
         case 'patient':
-          router.replace('/patient');
+          router.replace('/patient/Profile');
           break;
         }
       } else {
