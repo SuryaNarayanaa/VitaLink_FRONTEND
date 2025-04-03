@@ -1,12 +1,113 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  Platform,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const OtherMeditation = () => {
+const OtherMedication = () => {
+  const [medications, setMedications] = useState('');
+
+  const handleSubmit = () => {
+    console.log('Other Medications:', medications);
+    // Add logic to submit data here
+  };
+
   return (
-    <View>
-      <Text>OtherMeditation</Text>
-    </View>
-  )
-}
+    <LinearGradient
+      colors={['#E0D0FF', '#FFD0E0']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.gradient}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.content}>
+            <Text style={styles.title}>List the names of other medications you are taking</Text>
+            
+            <TextInput
+              style={styles.textInput}
+              multiline
+              numberOfLines={4}
+              value={medications}
+              onChangeText={setMedications}
+              placeholder=""
+            />
 
-export default OtherMeditation
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
+  );
+};
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? 25 : 0,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 10,
+    margin: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 20,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 4,
+    padding: 10,
+    minHeight: 100,
+    textAlignVertical: Platform.OS === 'android' ? 'top' : 'auto',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+  },
+  submitButton: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  submitButtonText: {
+    color: '#000',
+    fontSize: 16,
+  },
+});
+
+export default OtherMedication;
