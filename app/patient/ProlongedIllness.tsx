@@ -9,7 +9,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 const ProlongedIllness = () => {
   const [illnessDetails, setIllnessDetails] = useState('');
@@ -20,33 +20,42 @@ const ProlongedIllness = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Provide details about your prolonged illness</Text>
-          
-          <TextInput
-            style={styles.textInput}
-            multiline
-            numberOfLines={4}
-            value={illnessDetails}
-            onChangeText={setIllnessDetails}
-            placeholder=""
-          />
+    <LinearGradient
+      colors={['#E0D0FF', '#FFD0E0']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.gradient}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.content}>
+            <Text style={styles.title}>Provide details about your prolonged illness</Text>
+            
+            <TextInput
+              style={styles.textInput}
+              multiline
+              numberOfLines={4}
+              value={illnessDetails}
+              onChangeText={setIllnessDetails}
+              placeholder=""
+            />
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     paddingTop: Platform.OS === 'android' ? 25 : 0,
   },
   scrollView: {
