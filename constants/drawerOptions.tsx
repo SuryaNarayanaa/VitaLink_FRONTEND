@@ -15,7 +15,7 @@ export const DrawerOptions: DrawerNavigationOptions = {
           <CustomHeader
             title={title as string}
             leftButton={
-            <TouchableOpacity onPress={() => navigation.toggleDrawer()} className='p-5 rounded-full bg-red-500'>
+            <TouchableOpacity onPress={() => navigation.toggleDrawer()} className=''>
               <Ionicons name="menu" size={26} color="black" />
             </TouchableOpacity>
             }
