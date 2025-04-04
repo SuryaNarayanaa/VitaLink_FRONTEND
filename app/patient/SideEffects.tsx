@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  SafeAreaView,
   Platform,
 } from 'react-native';
 import { Checkbox } from 'react-native-paper';
@@ -36,15 +35,13 @@ const SideEffects = () => {
   };
 
   const handleSubmit = () => {
-    // Handle form submission here
     console.log('Checked items:', checkedItems);
     console.log('Other side effects:', otherSideEffects);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
+    <ScrollView className='flex-1 p-2 font-primary'>
+        <View className='bg-[#ffffffbc] backdrop:blur-sm p-8 m-[15px] rounded-2xl'>
           <Text style={styles.title}>Check all that apply:</Text>
 
           {sideEffects.map((effect) => (
@@ -79,15 +76,14 @@ const SideEffects = () => {
             <Text style={styles.submitButtonText}>Submit</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     paddingTop: Platform.OS === 'android' ? 25 : 0,
   },
   scrollView: {

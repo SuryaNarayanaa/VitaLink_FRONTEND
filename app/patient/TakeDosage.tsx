@@ -1,7 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { AlertCircle } from 'lucide-react-native';
 import { usePatientContext } from '@/hooks/context/PatientContext';
+import { useMutation,useQueryClient } from '@tanstack/react-query';
+import {apiClient} from '@/hooks/api';
+import ConfirmModal from '@/components/Patient/ConfirmModel';
+import { useSafeState } from '@/hooks/useSafeState';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -9,7 +13,14 @@ type PatientData = {
   missed_doses: string[];
 };
 
+const extractRecentMissedDoses = (doses: string[]) => {
+  const recent = doses.slice(0, 7);
+  const remaining = doses.slice(7);
+  return { recent, remaining };
+};
+
 export default function TakeDosage() {
+  const queryclient = useQueryClient()
   const { patientData } = usePatientContext();
   const { missed_doses = [] }: PatientData = patientData ?? { missed_doses: [] };
 
@@ -17,17 +28,13 @@ export default function TakeDosage() {
     return [...missed_doses].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
   }, [missed_doses]);
 
-  const extractRecentMissedDoses = (doses: string[]) => {
-    const recent = doses.slice(0, 7);
-    const remaining = doses.slice(7);
-    return { recent, remaining };
-  };
-
   const { recent: recentMissedDoses, remaining: paginatedMissedDoses } = extractRecentMissedDoses(sortedMissedDoses);
   
-  const [takenDates, setTakenDates] = useState<string[]>([]);
+  const [takenDate, setTakenDate] = useSafeState<string | null>(null);
+  const [errormessage,setErrorMessage] = useSafeState<string | null>(null) 
+  const [showModal,setShowModal] = useSafeState<boolean>(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useSafeState(1);
   const totalPages = Math.ceil(paginatedMissedDoses.length / ITEMS_PER_PAGE);
 
   const getPaginatedData = () => {
@@ -36,10 +43,29 @@ export default function TakeDosage() {
   };
 
   const handleDatePress = (date: string) => {
-    setTakenDates((prev) =>
-      prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date]
-    );
+    setTakenDate(date);
+    setShowModal(true)
   };
+
+  useEffect(() => {
+      if (!showModal) {
+        setTakenDate(null);
+        setErrorMessage(null);
+      }
+    }, [showModal]);
+
+  const {mutateAsync:takeDosageMutate,error,isPending,isSuccess} = useMutation({
+      mutationFn:async(date:string | null):Promise<void> => {
+        if(!date) {setErrorMessage("No dates chosen. Try again.");return;}
+        await apiClient.post(`/patient/take-dose?date=${date}`)
+      },
+      onSuccess:() => {
+          queryclient.invalidateQueries({queryKey:['profile']})
+      },
+      onError:(error)=>{
+        setErrorMessage(error?.message || "Failed to take dosage. Try again.");
+      }
+  })
 
   return (
     <ScrollView className='flex-1 p-2 font-primary'>
@@ -53,10 +79,10 @@ export default function TakeDosage() {
           {recentMissedDoses.map((date) => (
             <TouchableOpacity
               key={date}
-              className={`p-[10px] rounded-lg  min-w-20 items-center ${takenDates.includes(date) ? 'bg-[#4CAF50]' : 'bg-[#ffffffe8]'}`}
-              onPress={() => handleDatePress(date)}
+              className={`p-[10px] rounded-lg  min-w-20 items-center ${takenDate === date ? 'bg-[#4CAF50]' : 'bg-[#ffffffe8]'}`}
+              onPress={() => {handleDatePress(date);}}
             >
-              <Text style={[styles.dateText, takenDates.includes(date) && styles.takenDateText]}>
+              <Text style={[styles.dateText, takenDate === date && styles.takenDateText]}>
                 {date}
               </Text>
             </TouchableOpacity>
@@ -94,6 +120,11 @@ export default function TakeDosage() {
             <Text style={styles.paginationButtonText}>Next</Text>
           </TouchableOpacity>
         </View>
+
+        <ConfirmModal showModal={showModal} setShowModal={setShowModal}
+        onConfirm={() => takeDosageMutate(takenDate)} errormessage={errormessage} isLoading={isPending} 
+        isSuccess={isSuccess} date={takenDate}/>
+
       </View>
     </ScrollView>
   );

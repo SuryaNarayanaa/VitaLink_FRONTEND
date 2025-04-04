@@ -16,7 +16,21 @@
       "preview4": {
         "distribution": "internal"
       },
-      "production": {}
+      "staging": {
+        "env": {
+          "APP_ENV": "staging",
+          "API_URL": "https://kk63g2db-4502.inc1.devtunnels.ms"
+        },
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "production": {
+        "env": {
+          "APP_ENV": "production",
+          "API_URL": "https://your-production-api.com"
+      }
+      }
     }
   }
   

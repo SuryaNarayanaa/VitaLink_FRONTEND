@@ -1,10 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, Alert,Platform,Animated } from 'react-native';
+import { View, Text, Modal, Alert,Platform,Animated } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomButton from '@/components/ui/CustomButton';
 import InputField from '@/components/ui/CustomInput';
 import FileInputField from '@/components/ui/FileInputField';
 import { useState,useRef,useEffect } from 'react';
-import { usePatient,INRReport } from '@/hooks/api';
+import { usePatient } from '@/hooks/api';
+import { INRReport } from '@/types/patient';
 import { useMutation } from '@tanstack/react-query';
 import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -136,6 +137,7 @@ export default function UpdateInr() {
     setShowDatePicker(false);
   };
 
+
   return (
     <ScrollView className='flex-1 p-2 font-primary'>
       <View className='bg-[#ffffff99] backdrop:blur-sm p-8 m-[15px] rounded-2xl'>
@@ -170,12 +172,21 @@ export default function UpdateInr() {
         onIconPress={() => setShowDatePicker(true)}/>
 
         {showDatePicker && (
-          <DateTimePicker
-            value={new Date()}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleDateChange}
-          />
+        <Modal
+            transparent={true}
+            animationType="fade"
+            visible={showDatePicker}
+            onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <View className="bg-white p-4 rounded-xl">
+              <DateTimePicker value={new Date()} mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'} textColor="black"
+              onChange={handleDateChange}
+            />
+            </View>
+          </View>
+        </Modal>
         )}
       
         <FileInputField  label="Upload Document:" labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
@@ -210,6 +221,7 @@ export default function UpdateInr() {
             disabled={buttonStatus === 'pending'}
           />
         </Animated.View>
+
       </View>
     </ScrollView>
   );

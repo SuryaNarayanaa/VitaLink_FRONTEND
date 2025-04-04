@@ -3,11 +3,7 @@ import { BASE_URL, API_TIMEOUT } from '@/app/config/env';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 
-let onUnauthorized: (() => void) | null = null;
-
-export const setOnUnauthorized = (callback: () => void) => {
-  onUnauthorized = callback;
-};
+console.log(BASE_URL)
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -39,17 +35,12 @@ apiClient.interceptors.response.use(
         case 401:
           await SecureStore.deleteItemAsync('access_token');
           await SecureStore.deleteItemAsync('userRole');
-          if (onUnauthorized) {
-            onUnauthorized();
-          }
           break;
         case 403:
           Alert.alert('Access Denied', 'You do not have permission to perform this action.');
+          //handle request Token call to /refresh-token
           await SecureStore.deleteItemAsync('access_token');
           await SecureStore.deleteItemAsync('userRole');
-          if (onUnauthorized) {
-            onUnauthorized();
-          }
           break;
         case 500:
           Alert.alert('Server Error', 'Something went wrong. Please try again later.');

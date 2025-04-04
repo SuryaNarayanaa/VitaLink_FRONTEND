@@ -3,7 +3,16 @@ import apiClient from '../apiClient';
 
 export interface DoctorDashboardResponse {
   patients: any[];
-  user: any;
+  user: {
+    _id:string;
+    type:string;
+    ID:string;
+    fullName:string;
+    PFP:string;
+    occupation:string;
+    role:string;
+    exp:number;
+  };
 }
 
 export interface Doctor {

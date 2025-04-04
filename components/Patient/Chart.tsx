@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { BarChart, } from 'react-native-chart-kit';
 
 interface ChartProps {
@@ -32,12 +32,16 @@ const transformChartData = (chartData: Record<string, number>) => {
 
 
 const Chart:React.FC<ChartProps> = ({title, chartData}) => {
-  const chart_data = transformChartData(chartData);
+  const [showChart,setShowShart] = useState<boolean>(true)
+  const chart_data = showChart? transformChartData(chartData) : transformChartData({});
   return (
     <View className='my-2 mx-5 items-center'>
-      <View>
-        <TouchableOpacity></TouchableOpacity>
-        <Text className='text-xl font-semibold text-black tracking-wider'>{title}</Text>
+      <View className='flex flex-row items-center justify-center gap-x-2'>
+        <TouchableOpacity  style={styles.toggleButton}
+        onPress={() => setShowShart(prev => !prev)}>
+          {!showChart && <View style={styles.crossLine} />}
+        </TouchableOpacity>
+        <Text className='text-[16px] font-primarySemibold text-black'>{title}</Text>
       </View>
       
       <BarChart
@@ -52,12 +56,47 @@ const Chart:React.FC<ChartProps> = ({title, chartData}) => {
 }
 
 
+
 const styles = StyleSheet.create({
-    chart: {
-        marginVertical: 8,
-        marginHorizontal: 20,
-        borderRadius:6,
-        backgroundColor:'transparent'
-    }
-})
+  container: {
+    marginVertical: 8,
+    marginHorizontal: 20,
+    alignItems: 'center',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  toggleButton: {
+    width: 40,
+    height: 18,
+    borderWidth: 2,
+    borderColor: '#00AEEF',
+    backgroundColor:'light-blue',
+    marginRight: 8,
+    borderRadius: 3,
+    position: 'relative',
+  },
+  crossLine: {
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    width: '100%',
+    height: 2,
+    backgroundColor: 'red',
+    transform: [{ translateY: -1 }, { rotate: '45deg' }],
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+  },
+  chart: {
+    marginTop: 8,
+    borderRadius: 6,
+    backgroundColor: 'transparent',
+  },
+});
 export default Chart

@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/api';
 import { Ionicons } from '@expo/vector-icons';
 import {router} from 'expo-router'
-import { usePatientContext } from '@/hooks/context/PatientContext';
 
 
 export const CustomDrawerLabel = ({ iconName, label }: { iconName: keyof typeof Ionicons.glyphMap; label: string }) => (
@@ -25,7 +24,14 @@ export const CustomDrawerLabel = ({ iconName, label }: { iconName: keyof typeof 
   </View>
 );
 
-export default function CustomDrawer(props: DrawerContentComponentProps) {
+interface CutsomDrawerProps extends  DrawerContentComponentProps{
+   patientname?:string | null;
+   therapy?:string | null;
+   doctorname?:string | null;
+   doctorOccupation?:string | null;
+}
+
+export default function CustomDrawer(props: CutsomDrawerProps) {
   const { logout } = useAuth(); 
   const handleLogout = async () => {
     try {
@@ -64,8 +70,8 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       </DrawerContentScrollView>
 
       <View className='py-[15px] px-[20px] border-t-[1px] border-t-[#ccc] items-center'>
-        <Text style={styles.footerText}>Dummy Patient or Doctor</Text>
-        <Text style={styles.footerSubText}>Position</Text>
+        <Text style={styles.footerText}>{props.patientname || props.doctorname || 'Patient'}</Text>
+        <Text style={styles.footerSubText}>{props.therapy || props.doctorOccupation || 'Therapy'}</Text>
       </View>
     </View>
   );

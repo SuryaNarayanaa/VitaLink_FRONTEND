@@ -3,8 +3,10 @@ import { Table, Row } from 'react-native-reanimated-table';
 import { COLORS, FONT_FAMILY } from '../../constants/Theme';
 import React from 'react'
 import { usePatientContext } from '@/hooks/context/PatientContext'
-import { FlatList } from 'react-native';
 import Chart from '@/components/Patient/Chart';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/hooks/api';
+import { ReportFormResponse } from '@/types/patient';
 
 export const formatDateTime = (isoString: string) => {
   const date = new Date(isoString);
@@ -26,7 +28,7 @@ export const formatDateTime = (isoString: string) => {
 
 
 const Profile = () => {
-  const { patientData, isLoading, error } = usePatientContext();
+  const { patientData } = usePatientContext();
   const { patient, chart_data, missed_doses } = patientData || { patient: {}, chart_data: [], missed_doses: [] };
 
   const tableHead = ['Day', 'Dose'];
@@ -38,6 +40,14 @@ const Profile = () => {
 
   const chartdata = Array.isArray(chart_data) ? {} : chart_data;
 
+  const {data:reportData = null,isLoading,isError} = useQuery({
+    queryKey:['reports'],
+    queryFn: async () => {
+      const response = await apiClient.get<ReportFormResponse>('/patient/report')
+      return response.data
+    }
+  })
+  
   return (
     <ScrollView style={styles.container}>
       <View className='bg-[#ffffff99] backdrop:blur-md p-11 m-[15px] rounded-2xl'>
@@ -104,7 +114,7 @@ const Profile = () => {
           </View>
         </View>
 
-        <Chart title='Inr Values' chartData={chartdata}/>
+        <Chart title='INR Values' chartData={chartdata}/>
 
 
         <View className='mt-5'>
@@ -133,10 +143,10 @@ const Profile = () => {
         </View>
 
         <View style={styles.additionalInfo}>
-          <Text className='my-2 text-[#3b2e30] tracking-wide'>SIDE EFFECTS: {'None'}</Text>
-          <Text className='my-2 text-[#3b2e30] tracking-wide'>LIFESTYLE CHANGES: {'None'}</Text>
-          <Text className='my-2 text-[#3b2e30] tracking-wide'>OTHER MEDICATION: {'None'}</Text>
-          <Text className='my-2 text-[#3b2e30] tracking-wide'>PROLONGED ILLNESS: {'None'}</Text>
+          <Text className='my-2 text-[#3b2e30] tracking-wide'>SIDE EFFECTS: {!isError? reportData?.sideEffects || 'None' : 'None'}</Text>
+          <Text className='my-2 text-[#3b2e30] tracking-wide'>LIFESTYLE CHANGES: {!isError? reportData?.lifestyleChanges || 'None' : 'None'}</Text>
+          <Text className='my-2 text-[#3b2e30] tracking-wide'>OTHER MEDICATION: {!isError? reportData?.otherMedication || 'None' : 'None'}</Text>
+          <Text className='my-2 text-[#3b2e30] tracking-wide'>PROLONGED ILLNESS: {!isError? reportData?.prolongedIllness || 'None' : 'None'}</Text>
         </View>
 
         <View style={styles.contactTable}>
