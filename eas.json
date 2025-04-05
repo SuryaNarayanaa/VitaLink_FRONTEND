@@ -1,36 +1,12 @@
 {
-    "build": {
-      "preview": {
-        "android": {
-          "buildType": "apk"
-        }
+  "build": {
+    "development": {
+      "ios": {
+        "simulator": true
       },
-      "preview2": {
-        "android": {
-          "gradleCommand": ":app:assembleRelease"
-        }
-      },
-      "preview3": {
-        "developmentClient": true
-      },
-      "preview4": {
-        "distribution": "internal"
-      },
-      "staging": {
-        "env": {
-          "APP_ENV": "staging",
-          "API_URL": "https://kk63g2db-4502.inc1.devtunnels.ms"
-        },
-        "android": {
-          "buildType": "apk"
-        }
-      },
-      "production": {
-        "env": {
-          "APP_ENV": "production",
-          "API_URL": "https://your-production-api.com"
-      }
+      "android": {
+        "buildType": "apk"
       }
     }
   }
-  
+}
