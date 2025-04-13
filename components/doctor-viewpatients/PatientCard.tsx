@@ -58,44 +58,7 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient }) => 
         </Text>
       </TouchableOpacity>
 
-      {/* Modals would go here - simplified for this example */}
-      <Modal
-        visible={showDoctorModal}
-        transparent={true}
-        animationType="slide"
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Reassign Doctor</Text>
-            <Text>Current Doctor: {patient.doctorName}</Text>
-            <TouchableOpacity 
-              style={styles.modalButton}
-              onPress={() => setShowDoctorModal(false)}
-            >
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showCaretakerModal}
-        transparent={true}
-        animationType="slide"
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Reassign Caretaker</Text>
-            <Text>Current Caretaker: {patient.caretakerName}</Text>
-            <TouchableOpacity 
-              style={styles.modalButton}
-              onPress={() => setShowCaretakerModal(false)}
-            >
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      
     </View>
   );
 };

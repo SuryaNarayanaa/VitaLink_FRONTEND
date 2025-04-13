@@ -3,7 +3,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { DoctorDashboardResponse } from '../api/doctor/useDoctor';
 import { useDoctor } from '../api';
 
 interface DoctorContextProps {
@@ -48,6 +47,8 @@ export const DoctorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     },
     enabled: userRole === 'doctor',
   });
+
+  console.log('Doctor Data:', doctorData);
 
   const errorMessage = error instanceof Error ? error.message : null;
 

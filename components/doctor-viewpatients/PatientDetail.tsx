@@ -12,7 +12,7 @@ import {
   Dimensions
 } from 'react-native';
 import { Patient } from '@/constants/data/mockPatients';
-import { LineChart } from 'react-native-chart-kit';
+import { Ionicons } from '@expo/vector-icons';
 
 interface PatientDetailProps {
   patient: Patient;
@@ -77,29 +77,6 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>INR Values</Text>
-              <LineChart
-                data={inrData}
-                width={Dimensions.get('window').width - 40}
-                height={220}
-                chartConfig={{
-                  backgroundColor: '#ffffff',
-                  backgroundGradientFrom: '#ffffff',
-                  backgroundGradientTo: '#ffffff',
-                  decimalPlaces: 1,
-                  color: (opacity = 1) => `rgba(136, 132, 216, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: '6',
-                    strokeWidth: '2',
-                    stroke: '#8884d8',
-                  },
-                }}
-                bezier
-                style={styles.chart}
-              />
               
               <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>View INR Reports</Text>
@@ -220,7 +197,10 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
             style={styles.backButton}
             onPress={onBack}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
+          <View className='flex flex-row items-center justify-center gap-x-2'>
+            <Ionicons name="arrow-back" size={15} color="#2196F3"/>
+            <Text style={styles.backButtonText}>Back</Text>
+          </View>
           </TouchableOpacity>
           <View style={styles.patientHeader}>
             <Text style={styles.patientName}>{patient.name}</Text>

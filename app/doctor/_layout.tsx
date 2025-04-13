@@ -10,11 +10,11 @@ import DoctorProvider from '@/hooks/context/DoctorContext';
 const DoctorLayout = () => {
   return (
     <DoctorProvider>
-    <LinearGradient colors={['#a7b9ff', '#fab7c5']} dither={false} style={{ flex: 1 }}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <LinearGradient colors={['#a7b9ff', '#fab7c5']} dither={false} style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <DoctorNavigator/>
-      </GestureHandlerRootView>
-    </LinearGradient>
+        </GestureHandlerRootView>
+      </LinearGradient>
     </DoctorProvider>
   );
 };

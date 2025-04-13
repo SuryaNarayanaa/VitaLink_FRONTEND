@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import {HeaderLogos} from '../../components/HeaderLogos'
-import useAuth, { LoginCredentials, LoginResponse } from '@/hooks/api/auth/useAuth'
+import useAuth, { LoginCredentials } from '@/hooks/api/auth/useAuth'
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -37,7 +37,6 @@ export default function SignIn() {
     
     try {
       const response = await login(credentials);
-      console.log(response)
       if (response && response.role) {
         switch(response.role) {
         case 'doctor':

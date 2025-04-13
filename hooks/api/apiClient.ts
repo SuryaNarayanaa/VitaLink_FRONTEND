@@ -3,8 +3,6 @@ import { BASE_URL, API_TIMEOUT } from '@/app/config/env';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 
-console.log(BASE_URL)
-
 const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: API_TIMEOUT,

@@ -1,59 +1,10 @@
 import { useState } from 'react';
 import apiClient from '../apiClient';
 
-export interface DoctorDashboardResponse {
-  patients: any[];
-  user: {
-    _id:string;
-    type:string;
-    ID:string;
-    fullName:string;
-    PFP:string;
-    occupation:string;
-    role:string;
-    exp:number;
-  };
-}
-
-export interface Doctor {
-  fullName: string;
-  ID: string;
-}
-
-export interface PatientDetails {
-  patient: any;
-  user: any;
-  chart_data: any[];
-  missed_doses: any[];
-}
-
-export interface DosageSchedule {
-  day: string;
-  dose: number;
-}
-
-export interface ReportResponse {
-  user: any;
-  reports: any[];
-}
-
-export interface PatientFormData {
-  name: string;
-  age: number;
-  gender: string;
-  contact: string;
-  therapy_start_date: string;
-  dosage_schedule: DosageSchedule[];
-  [key: string]: any;
-}
-
 export const useDoctor = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Get doctor dashboard data with assigned patients
-   */
   const getDoctorDashboard = async (): Promise<DoctorDashboardResponse | null> => {
     setIsLoading(true);
     setError(null);

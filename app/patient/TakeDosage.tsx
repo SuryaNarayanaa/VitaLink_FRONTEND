@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { AlertCircle } from 'lucide-react-native';
 import { usePatientContext } from '@/hooks/context/PatientContext';
 import { useMutation,useQueryClient } from '@tanstack/react-query';
 import {apiClient} from '@/hooks/api';
 import ConfirmModal from '@/components/Patient/ConfirmModel';
 import { useSafeState } from '@/hooks/useSafeState';
+import { Ionicons } from '@expo/vector-icons';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -94,7 +94,7 @@ export default function TakeDosage() {
           <View className='flex flex-row flex-wrap items-center gap-3 justify-around'>
             {getPaginatedData().map((dose, index) => (
               <View key={index} style={styles.missedDoseItem}>
-                <AlertCircle size={20} color="#FF5252" />
+                <Ionicons name="alert-circle-outline" size={24} color="#FF5252" />
                 <Text style={styles.missedDoseMedication}>{dose}</Text>
               </View>
             ))}

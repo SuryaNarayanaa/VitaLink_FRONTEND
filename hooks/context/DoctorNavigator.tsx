@@ -8,13 +8,13 @@ import { useDoctorContext } from './DoctorContext';
 
 const DoctorNavigator = () => {
   const {doctorData} = useDoctorContext()
-  console.log(doctorData?.user.fullName)
+  console.log(doctorData?.user.fullname)
   console.log(doctorData?.user.occupation)  
   return (
     <Drawer
           backBehavior="initialRoute"
           drawerContent={(props: DrawerContentComponentProps) => 
-          <CustomDrawer {...props} doctorname={doctorData?.user.fullName} doctorOccupation={doctorData?.user.occupation}/>}
+          <CustomDrawer {...props} doctorname={doctorData?.user.fullname} doctorOccupation={doctorData?.user.occupation}/>}
           screenOptions={DrawerOptions}
         >
           <Drawer.Screen
@@ -36,13 +36,6 @@ const DoctorNavigator = () => {
             options={{
               drawerLabel: () => <CustomDrawerLabel iconName="document-text" label="View Report" />,
               headerTitle: "View Report",
-            }}
-          />
-          <Drawer.Screen
-            name="Logout"
-            options={{
-              drawerLabel: () => <CustomDrawerLabel iconName="log-out" label="Logout" />,
-              headerTitle: "Logout",
             }}
           />
         </Drawer>

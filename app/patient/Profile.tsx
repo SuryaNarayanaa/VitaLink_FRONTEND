@@ -3,10 +3,10 @@ import { Table, Row } from 'react-native-reanimated-table';
 import { COLORS, FONT_FAMILY } from '../../constants/Theme';
 import React from 'react'
 import { usePatientContext } from '@/hooks/context/PatientContext'
-import Chart from '@/components/Patient/Chart';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { ReportFormResponse } from '@/types/patient';
+import Chart from '@/components/Patient/Chart';
 
 export const formatDateTime = (isoString: string) => {
   const date = new Date(isoString);
@@ -38,8 +38,7 @@ const Profile = () => {
     ? formatDateTime(patient.inr_reports[0].date)
     : null;
 
-  const chartdata = Array.isArray(chart_data) ? {} : chart_data;
-
+  
   const {data:reportData = null,isLoading,isError} = useQuery({
     queryKey:['reports'],
     queryFn: async () => {
@@ -114,8 +113,7 @@ const Profile = () => {
           </View>
         </View>
 
-        <Chart title='INR Values' chartData={chartdata}/>
-
+        {/*<Chart title='INR values' chartData={Array.isArray(chart_data) ? {} : chart_data}/>*/}
 
         <View className='mt-5'>
           <Text style={styles.sectionTitle}>MISSED DOSES:</Text>

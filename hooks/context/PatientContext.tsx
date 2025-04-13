@@ -21,21 +21,21 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isCheckingRole, setIsCheckingRole] = useState(true);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      try {
-        const role = await SecureStore.getItemAsync('userRole');
-        setUserRole(role);
-        if (role !== 'patient') {
-          Alert.alert('Unauthorized', 'You are not authorized to access this route.');
-          router.replace('/signIn');
-        }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-        router.replace('/signIn');
-      } finally {
-        setIsCheckingRole(false);
-      }
-    };
+    // Add error handling for SecureStore
+const fetchUserRole = async () => {
+  try {
+    const role = await SecureStore.getItemAsync('userRole');
+    if (!role) {
+      router.replace('/signIn');
+      return;
+    }
+    setUserRole(role);
+    setIsCheckingRole(false);
+  } catch (error) {
+    console.error('SecureStore Error:', error);
+    router.replace('/signIn');
+  }
+};
 
     fetchUserRole();
   }, [router]);
@@ -78,9 +78,6 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       </View>
     );
   }
-
-  console.log('This is the patientData:', patientData);
-
   return (
     <PatientContext.Provider value={{ patientData, isLoading, error: errorMessage }}>
       {children}

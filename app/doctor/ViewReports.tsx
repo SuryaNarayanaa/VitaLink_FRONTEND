@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Activ
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
-import { BASE_URL } from '../../app/config/env';
+import { BASE_URL } from '../config/env';
 import * as SecureStore from 'expo-secure-store';
 import { useDoctor } from '@/hooks/api/doctor/useDoctor';
 // Types based on API response
@@ -214,7 +214,7 @@ export default function ViewReports() {
           style={[styles.filterTab, filterType === 'all' && styles.activeTab]}
           onPress={() => setFilterType('all')}
         >
-          <Text style={[styles.filterTabText, filterType === 'all' && styles.activeTabText]}>
+          <Text style={[styles.filterTabText, filterType === 'all' && styles.activeTabText]}>-
             All Reports
           </Text>
         </TouchableOpacity>

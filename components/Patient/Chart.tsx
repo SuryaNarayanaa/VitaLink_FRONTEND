@@ -1,102 +1,85 @@
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
-import { BarChart, } from 'react-native-chart-kit';
+import { View, Text, TouchableOpacity, Animated  } from 'react-native'
+import React from 'react'
+import { BarChart,barDataItem } from "react-native-gifted-charts";
+
+let initialBarData:barDataItem[] = [
+  { value: 8, label: 'MAR' },
+  { value: 11, label: 'MAY' },
+  { value: 9, label: 'AUG' },
+  { value: 10, label: 'JAN' },
+];
 
 interface ChartProps {
-  title: string;
-  chartData: Record<string, number>; 
+    title:string,
+    chartData:Record<string, number>
 }
 
-const chartConfig = {
-    backgroundGradientFrom: "#a7b9ff",
-    backgroundGradientFromOpacity: 0,
-    backgroundGradientTo: "#fab7c5",
-    backgroundGradientToOpacity: 0,
-    color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    barPercentage: 1,
-    useShadowColorFromDataset: false,
-    propsForBackgroundLines: {
-      stroke: "rgba(0,0,0,0.2)",
-      strokeWidth: 0.5,
-      strokeDasharray: "0",
-    },
-};
 
-const transformChartData = (chartData: Record<string, number>) => {
+const getChartDesign = (initialBarData:barDataItem[]):barDataItem[] => {
+  return initialBarData.map((item:barDataItem) => {
   return {
-    labels: Object.keys(chartData), 
-    datasets: [{ data: Object.values(chartData) }], 
+    ...item,
+  frontColor: '#00bcd4',
+  sideColor: '#008c9e', 
+  topColor: '#00bcd4',
+  showGradient: true,
+  gradientColor: 'rgba(0, 188, 212, 0.3)',
+  barWidth: 30,
+  spacing: 20,
+  barBorderTopLeftRadius: 6,
+  barBorderTopRightRadius: 6,
+  capThickness: 2,
+  capColor: '#007BFF',
+  capRadius: 2,
+  topLabelComponent: () => (
+    <View
+      style={{
+        backgroundColor: 'transparent',
+        padding: 4,
+      }}
+    >
+      <Text className='text-slate-800 text-sm'>{item.value}</Text>
+    </View>
+  ),
   };
+})
+}
+
+const transformChartData = (data: Record<string, number>): barDataItem[] => {
+  return Object.entries(data).map(([label, value]) => ({
+    label,
+    value,
+  }));
 };
 
 
-const Chart:React.FC<ChartProps> = ({title, chartData}) => {
-  const [showChart,setShowShart] = useState<boolean>(true)
-  const chart_data = showChart? transformChartData(chartData) : transformChartData({});
+const Chart:React.FC<ChartProps> = ({title,chartData}) => {
+  const initialbardata = transformChartData(chartData)
+  const barData = getChartDesign(initialbardata);
   return (
-    <View className='my-2 mx-5 items-center'>
-      <View className='flex flex-row items-center justify-center gap-x-2'>
-        <TouchableOpacity  style={styles.toggleButton}
-        onPress={() => setShowShart(prev => !prev)}>
-          {!showChart && <View style={styles.crossLine} />}
-        </TouchableOpacity>
-        <Text className='text-[16px] font-primarySemibold text-black'>{title}</Text>
+    <View className='items-center'>
+      {/* Legend */}
+      <View className='flex flex-row items-center mb-2 gap-x-2'>
+        <TouchableOpacity className='w-11 h-5 border-2 border-[#17a3d6d5] bg-blue-300 mr-2 rounded-sm relative'/>
+        <Text className='font-semibold text-[16px]'>{title}</Text>
       </View>
-      
+      <View className='flex flex-row items-center my-2 justify-start w-full'>
       <BarChart
-        style={styles.chart}
-        data={chart_data}
-        width={Dimensions.get('window').width * 0.75} height={250}
-        yAxisLabel="" yAxisSuffix="" fromZero={true} withInnerLines={true}
-        chartConfig={chartConfig}
-        />
+        data={barData}
+        frontColor="#93c5f0"
+        gradientColor="rgba(0, 188, 212, 0.2)" 
+        noOfSections={4}
+        initialSpacing={30}
+        spacing={20}
+        xAxisColor="#ccc"
+        yAxisColor={"#ccc"}
+        yAxisThickness={1}
+        isAnimated
+        animationDuration={3000}
+        isThreeD={false}
+      /></View>
     </View>
   )
 }
 
-
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 8,
-    marginHorizontal: 20,
-    alignItems: 'center',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  toggleButton: {
-    width: 40,
-    height: 18,
-    borderWidth: 2,
-    borderColor: '#00AEEF',
-    backgroundColor:'light-blue',
-    marginRight: 8,
-    borderRadius: 3,
-    position: 'relative',
-  },
-  crossLine: {
-    position: 'absolute',
-    top: '50%',
-    left: 0,
-    width: '100%',
-    height: 2,
-    backgroundColor: 'red',
-    transform: [{ translateY: -1 }, { rotate: '45deg' }],
-  },
-  titleText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-  },
-  chart: {
-    marginTop: 8,
-    borderRadius: 6,
-    backgroundColor: 'transparent',
-  },
-});
 export default Chart

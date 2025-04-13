@@ -11,6 +11,7 @@ export interface LoginResponse {
   message: string;
   role: 'admin' | 'doctor' | 'patient';
   access_token: string;
+  refresh_token : string;
 }
 
 const useAuth = () => {
@@ -29,14 +30,14 @@ const useAuth = () => {
       formData.append('username', credentials.username);
       formData.append('password', credentials.password);
       
-      const response = await apiClient.post<LoginResponse>('/login', formData, {
+      const response = await apiClient.post<LoginResponse>('/auth/login', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       await SecureStore.setItemAsync('access_token', response.data.access_token);
+      await SecureStore.setItemAsync('refresh_token',response.data.refresh_token);
       await SecureStore.setItemAsync('userRole', response.data.role);
-      
       return response.data;
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Login failed. Please try again.');
@@ -51,9 +52,10 @@ const useAuth = () => {
     setError(null);
     
     try {
-      console.log("reaching logout")
-      await apiClient.get('/logout');
+
+      await apiClient.get('/auth/logout');
       await SecureStore.deleteItemAsync('access_token');
+      await SecureStore.deleteItemAsync('refresh_token');
       await SecureStore.deleteItemAsync('userRole');
       return true;
     } catch (err: any) {
@@ -65,9 +67,6 @@ const useAuth = () => {
     }
   };
 
-  /**
-   * Check if user is authenticated
-   */
   const checkAuthStatus = async (): Promise<string | null> => {
     try {
       const token = await SecureStore.getItemAsync('access_token');

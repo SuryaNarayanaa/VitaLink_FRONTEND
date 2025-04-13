@@ -11,7 +11,7 @@ interface CustomHeaderProps {
 
 const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
   return (
-    <View className='bg-white flex items-center py-5 w-full rounded-b-2xl'>
+    <View className='bg-white flex items-center py-5 w-full rounded-b-sm'>
       <View className='relative w-full flex flex-row items-center justify-around px-5'>
         <View className=''>{leftButton}</View>
         <View className='flex-1 flex-row items-center justify-center gap-x-5 pr-10'>

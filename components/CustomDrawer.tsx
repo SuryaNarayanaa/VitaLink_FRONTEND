@@ -15,12 +15,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/api';
 import { Ionicons } from '@expo/vector-icons';
 import {router} from 'expo-router'
+import { HeaderLogos } from './HeaderLogos';
 
 
 export const CustomDrawerLabel = ({ iconName, label }: { iconName: keyof typeof Ionicons.glyphMap; label: string }) => (
   <View className='flex flex-row items-center gap-x-4'>
-    <View className='flex flex-row items-center justify-center'><Ionicons name={iconName} size={20} color="#000" className=''/></View>
-    <Text className=''>{label}</Text>
+    <View className='flex flex-row items-center justify-center'>
+      <Ionicons name={iconName} size={20} color="#000"/>
+    </View>
+    <Text className='text-black font-semibold'>{label}</Text>
   </View>
 );
 
@@ -37,7 +40,7 @@ export default function CustomDrawer(props: CutsomDrawerProps) {
     try {
       const response = await logout(); 
       if (response) {
-        router.replace('/')
+        router.replace('/(auth)/signIn')
       } else {
         console.error('Logout failed');
       }
@@ -50,7 +53,7 @@ export default function CustomDrawer(props: CutsomDrawerProps) {
   const { top, bottom } = useSafeAreaInsets();
   
   return (
-    <View className='flex-1 rounded-none mt-[100px]'>
+    <View className='flex-1 flex-col justify-around h-full rounded-none mt-32' style={{ paddingBottom: bottom }}>
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={{ paddingTop: top }}
@@ -61,7 +64,7 @@ export default function CustomDrawer(props: CutsomDrawerProps) {
           label={() => (
             <View className='flex flex-row items-center mx-[10px] gap-x-[12px]'>
               <Ionicons name="log-out" size={20} color="#333" />
-              <Text className='text-black'>Logout</Text>
+              <Text className='text-black font-medium tracking-wide'>Logout</Text>
             </View>
           )}
           onPress={handleLogout}

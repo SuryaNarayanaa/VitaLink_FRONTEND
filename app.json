@@ -49,7 +49,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png",
+          "image": "./assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
