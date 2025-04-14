@@ -5,12 +5,11 @@ import InputField from '@/components/ui/CustomInput';
 import FileInputField from '@/components/ui/FileInputField';
 import { useState,useRef,useEffect } from 'react';
 import { usePatient } from '@/hooks/api';
-import { INRReport } from '@/types/patient';
+import { INRReport,fileProps } from '@/types/patient';
 import { useMutation } from '@tanstack/react-query';
 import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeState } from '@/hooks/useSafeState';
-
 
 function isValidDate(dateString: string): boolean {
   const regex = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}:\d{2}))?$/;
@@ -61,7 +60,12 @@ export default function UpdateInr() {
     location_of_test:'',
     date:'',
   })
-  const [selectedFile, setSelectedFile] = useSafeState<any>(null);
+  const [selectedFile, setSelectedFile] = useSafeState<fileProps>({
+    uri:'',
+    name:'',
+    file:"",
+    mimeType:'',
+  });
   const [error,setError] = useSafeState<string | null>(null);
   const [buttonStatus, setButtonStatus] = useSafeState<'default' | 'pending' | 'success' | 'error'>('default');
 
@@ -91,7 +95,7 @@ export default function UpdateInr() {
       const timer = setTimeout(() => {
         setButtonStatus('default');
         setError(null);
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [buttonStatus]);
@@ -119,7 +123,7 @@ export default function UpdateInr() {
       inr_value: inrNumber,
       location_of_test: form.location_of_test,
       date: form.date,
-      file: selectedFile, 
+      file: selectedFile.file, 
       file_name: selectedFile ? selectedFile.name : '',
       file_path: selectedFile ? selectedFile.uri : '',
       type: selectedFile ? selectedFile.mimeType : '',
@@ -143,7 +147,7 @@ export default function UpdateInr() {
       <View className='bg-[#ffffff99] backdrop:blur-sm p-8 m-[15px] rounded-2xl'>
         {error && (
           <View className='mt-2'>
-            <Text className="text-center text-red-600 font-semibold mb-2 tracking-wider">{error.toUpperCase()}</Text>
+            <Text className="text-center text-red-600 mb-2 tracking-wider">{error}</Text>
           </View>
         )}
         <InputField label='INR Value : ' 
@@ -193,8 +197,16 @@ export default function UpdateInr() {
         containerStyle="bg-transparent border rounded-xl border-[#ddd]"
         FileExtensions={['pdf', 'docx']}
         onFileSelect={(file) => {
-          console.log("Selected File:", file)
-          setSelectedFile(file);
+          if (file) {
+            setSelectedFile({
+              uri: file.uri,
+              name: file.name,
+              file: file.file,
+              mimeType: file.mimeType,
+            });
+          } else {
+            setSelectedFile({ uri: '', name: '', file: '', mimeType: '' });
+          }
         }}
         />
 

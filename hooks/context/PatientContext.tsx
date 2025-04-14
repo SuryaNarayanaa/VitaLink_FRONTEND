@@ -6,6 +6,7 @@ import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { apiClient } from '../api';
 import { PatientDashboardResponse } from '@/types/patient';
+import LoadingAnimation from '@/components/animations/LoadingAnimation';
 
 interface PatientContextProps {
   patientData: PatientDashboardResponse | null
@@ -55,10 +56,8 @@ const fetchUserRole = async () => {
   if (isCheckingRole || isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-blue-50">
-        <ActivityIndicator size="large" color="#1D4ED8" />
-        <Text className="mt-4 text-xl font-bold text-blue-800">
-          {isCheckingRole ? 'Checking user role...' : 'Loading patient data...'}
-        </Text>
+        <LoadingAnimation/>
+        <Text className='mt-4 text-xl font-semibold'>Loading Patient Data</Text>
       </View>
     );
   }

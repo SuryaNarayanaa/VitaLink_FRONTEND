@@ -6,17 +6,21 @@ import { apiClient } from '@/hooks/api';
 const ProlongedIllness = () => {
   const [illnessDetails, setIllnessDetails] = useState(''); 
   const queryclient= useQueryClient();
+  const [buttonState,setButtonState] = useState<'success' | 'error'  | 'default'>('default') 
 
-  const {mutate:reportMutation,isPending} = useMutation({
-    mutationFn: async(formdata:FormData) => {
-      const result = await apiClient.post('/patient/report',formdata,{
-        headers:{'Content-Type': 'multipart/form-data'},
-      })
-      },
-      onSuccess:() => {
-        queryclient.invalidateQueries({queryKey:['reports']})
-      }
-  })
+  const {mutate:reportMutation,isPending,isSuccess,isError} = useMutation({
+       mutationFn: async(formdata:FormData) => {
+          const result = await apiClient.post('/patient/report?typ=prolongedillness',formdata,{
+             headers:{'Content-Type': 'multipart/form-data'},
+          })
+       },
+       onSuccess:() => {
+          queryclient.invalidateQueries({queryKey:['reports']})
+          setIllnessDetails('')
+          setButtonState("success")
+       },
+       onError:() => { setButtonState("error") }
+    })
 
   const handleSubmit = () => {
     const formdata = new FormData()
@@ -28,7 +32,7 @@ const ProlongedIllness = () => {
 
   return (
     <MutltiLinetextInput label = 'Provide details about your prolonged illness'
-    text={illnessDetails} setText={setIllnessDetails} 
+    text={illnessDetails} setText={setIllnessDetails} isSuccces = {buttonState === "success"} isError={buttonState === "error"}
       handleSubmit={handleSubmit} isPending={isPending} />
   );
 };

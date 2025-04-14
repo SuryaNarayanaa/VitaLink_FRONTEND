@@ -1,15 +1,15 @@
 import React from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import LottieView from 'lottie-react-native';
-import Loadingicon from '../../assets/lottie-icons/loading1.json'
+import NotFoundIcon from '../../assets/lottie-icons/notFound.json'
 interface LoadingAnimationProps {
   style?: ViewStyle;
 }
 
-const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ style }) => {
+const NotFoundAnimation: React.FC<LoadingAnimationProps> = ({ style }) => {
   return (
     <LottieView
-      source={Loadingicon}
+      source={NotFoundIcon}
       autoPlay
       loop
       style={[styles.animation, style]}
@@ -19,9 +19,9 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ style }) => {
 
 const styles = StyleSheet.create({
   animation: {
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
   },
 });
 
-export default LoadingAnimation;
+export default NotFoundAnimation;

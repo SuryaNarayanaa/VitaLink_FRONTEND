@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { usePatientContext } from '@/hooks/context/PatientContext';
-import { useMutation,useQueryClient } from '@tanstack/react-query';
+import { useMutation,useQuery,useQueryClient } from '@tanstack/react-query';
 import {apiClient} from '@/hooks/api';
 import ConfirmModal from '@/components/Patient/ConfirmModel';
 import { useSafeState } from '@/hooks/useSafeState';
 import { Ionicons } from '@expo/vector-icons';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
 type PatientData = {
+  recent_missed_doses:string[]
   missed_doses: string[];
 };
 
@@ -21,14 +22,16 @@ const extractRecentMissedDoses = (doses: string[]) => {
 
 export default function TakeDosage() {
   const queryclient = useQueryClient()
-  const { patientData } = usePatientContext();
-  const { missed_doses = [] }: PatientData = patientData ?? { missed_doses: [] };
+  const {data = null,isLoading} = useQuery({
+    queryKey:["missed_doses"],
+    queryFn:async() => {
+      const {data} = await apiClient.get<PatientData>("/patient/missedDoses")
+      return data;
+    }
+  })
 
-  const sortedMissedDoses = useMemo(() => {
-    return [...missed_doses].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-  }, [missed_doses]);
-
-  const { recent: recentMissedDoses, remaining: paginatedMissedDoses } = extractRecentMissedDoses(sortedMissedDoses);
+  const recentMissedDoses = data?.recent_missed_doses || [];
+  const paginatedMissedDoses = data?.missed_doses || [];
   
   const [takenDate, setTakenDate] = useSafeState<string | null>(null);
   const [errormessage,setErrorMessage] = useSafeState<string | null>(null) 
@@ -57,10 +60,10 @@ export default function TakeDosage() {
   const {mutateAsync:takeDosageMutate,error,isPending,isSuccess} = useMutation({
       mutationFn:async(date:string | null):Promise<void> => {
         if(!date) {setErrorMessage("No dates chosen. Try again.");return;}
-        await apiClient.post(`/patient/take-dose?date=${date}`)
+        await apiClient.put(`/patient/take_dose`,{date})
       },
       onSuccess:() => {
-          queryclient.invalidateQueries({queryKey:['profile']})
+          queryclient.invalidateQueries({queryKey:['profile',"missed_doses"]})
       },
       onError:(error)=>{
         setErrorMessage(error?.message || "Failed to take dosage. Try again.");

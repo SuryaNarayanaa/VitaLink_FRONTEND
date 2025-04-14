@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useDoctor } from '../api';
+import LoadingAnimation from '@/components/animations/LoadingAnimation';
 
 interface DoctorContextProps {
   doctorData: DoctorDashboardResponse | null;
@@ -55,10 +56,8 @@ export const DoctorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   if (isCheckingRole || isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-blue-50">
-        <ActivityIndicator size="large" color="#1D4ED8" />
-        <Text className="mt-4 text-xl font-bold text-blue-800">
-          {isCheckingRole ? 'Checking user role...' : 'Loading doctor data...'}
-        </Text>
+        <LoadingAnimation/>
+        <Text className='mt-4 text-xl font-semibold'>Loading Doctor Data</Text>
       </View>
     );
   }

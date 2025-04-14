@@ -1,4 +1,5 @@
 
+import { Doctor, Patient } from '@/types/doctor';
 import React, { useState } from 'react';
 import { 
   View, 
@@ -7,14 +8,16 @@ import {
   StyleSheet, 
   Modal 
 } from 'react-native';
-import { Patient } from '../../constants/data/mockPatients';
+import ReassignCaretakerModal from './ReassignCaretakerModal';
+import ReassignDoctorModal from './ReassignDoctorModal';
 
 interface PatientCardProps {
   patient: Patient;
+  doctors:Doctor[]
   onViewPatient: (patient: Patient) => void;
 }
 
-const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient }) => {
+const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient,doctors }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showCaretakerModal, setShowCaretakerModal] = useState(false);
@@ -57,7 +60,16 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient }) => 
           {isExpanded ? 'Hide Options' : 'Show Options'}
         </Text>
       </TouchableOpacity>
+      
+      <ReassignCaretakerModal 
+      isOpen={showCaretakerModal} onClose={() => setShowCaretakerModal(false)}
+      patient={patient}/>
 
+      <ReassignDoctorModal  
+      isOpen={showDoctorModal} onClose={() => setShowDoctorModal(false)}
+      patient={patient} doctors={doctors}
+      />
+      
       
     </View>
   );

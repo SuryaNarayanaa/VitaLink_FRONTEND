@@ -11,12 +11,12 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Patient } from '@/types/doctor';
 
 interface ReassignCaretakerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  patientId: string;
-  currentCaretaker: string;
+  patient: Patient;
 }
 
 const caretakers = [
@@ -29,8 +29,7 @@ const caretakers = [
 const ReassignCaretakerModal: React.FC<ReassignCaretakerModalProps> = ({ 
   isOpen, 
   onClose, 
-  patientId, 
-  currentCaretaker 
+  patient,  
 }) => {
   const [selectedCaretaker, setSelectedCaretaker] = useState<string>(caretakers[0]);
 

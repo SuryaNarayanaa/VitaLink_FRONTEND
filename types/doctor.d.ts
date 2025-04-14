@@ -13,7 +13,7 @@ declare interface DoctorDashboardResponse {
   }
 
 declare interface Doctor {
-    fullName: string;
+    fullname: string;
     ID: string;
 }
 
@@ -42,4 +42,13 @@ declare interface PatientFormData {
   therapy_start_date: string;
   dosage_schedule: DosageSchedule[];
   [key: string]: any;
+}
+
+export interface Patient {
+  ID: string;
+  name: string;
+  age: number;
+  gender: string;
+  doctor: string;
+  caretakerName: string;
 }

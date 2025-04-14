@@ -7,18 +7,21 @@ import {
     SafeAreaView,
     Platform,
   } from 'react-native';
-
+import CustomButton from '../ui/CustomButton';
+import React  from 'react';
 
 interface TextInputProps {
     label:string
     text:string;
     setText: (value:string) => void;
     handleSubmit: () => void;
+    isSuccces:boolean,
+    isError:boolean,
     isPending:boolean
 }  
 
 
-const MutltiLinetextInput:React.FC<TextInputProps> = ({label,text,setText,handleSubmit,isPending,...props}) => {
+const MutltiLinetextInput:React.FC<TextInputProps> = ({label,text,setText,handleSubmit,isSuccces,isError,isPending,...props}) => {
   return (
       <SafeAreaView className='flex-1 p-2 font-primary'>
         <View className='bg-[#ffffffb6] backdrop:blur-sm p-8 m-[15px] rounded-2xl h-auto'>
@@ -36,14 +39,9 @@ const MutltiLinetextInput:React.FC<TextInputProps> = ({label,text,setText,handle
             />
             
 
-            <TouchableOpacity 
-                className='bg-slate-50 p-4 rounded-lg items-center border border-slate-800'
-            onPress={handleSubmit} disabled={isPending}
-            >
-            <Text className='font-secondary text-[16px] font-semibold tracking-wide'>
-            Submit
-            </Text>
-            </TouchableOpacity>
+            <CustomButton onPress={handleSubmit} bgVariant={isSuccces?'success': isError ? 'danger' : 'outline' }
+            className='rounded-md py-3 px-6 font-bold bg-transparent' textVariant='primary'
+            title='Submit' disabled={isPending}/>
         </View>
       </SafeAreaView>
   );

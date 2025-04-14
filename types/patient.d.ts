@@ -1,33 +1,41 @@
+export interface Patient{
+  _id: string;
+  name: string;
+  age: number;
+  gender: string;
+  target_inr_min: number;
+  target_inr_max: number;
+  therapy: string;
+  medical_history: {
+    diagnosis: string;
+    duration_value: number;
+    duration_unit: string;
+  }[];
+  therapy_start_date: string;
+  dosage_schedule: {
+    day: number;
+    dosage: number;
+  }[];
+  contact: string;
+  kin_name: string;
+  kin_contact: string;
+  type: string;
+  doctor: string;
+  caretaker:string;
+  ID: string;
+  inr_reports: INRReport[];
+  taken_doses: string[];
+  sideeffects:string,
+  lifestylechanges:string,
+  othermedication:string,
+  prolongedillness:string,
+  role: string;
+  exp: number;
+}
+
+
 export interface PatientDashboardResponse {
-    patient: {
-      _id: string;
-      name: string;
-      age: number;
-      gender: string;
-      target_inr_min: number;
-      target_inr_max: number;
-      therapy: string;
-      medical_history: {
-        diagnosis: string;
-        duration_value: number;
-        duration_unit: string;
-      }[];
-      therapy_start_date: string;
-      dosage_schedule: {
-        day: string;
-        dosage: number;
-      }[];
-      contact: string;
-      kin_name: string;
-      kin_contact: string;
-      type: string;
-      doctor: string;
-      ID: string;
-      inr_reports: INRReport[];
-      taken_doses: string[];
-      role: string;
-      exp: number;
-    };
+    patient: Patient
     chart_data: {
       [month: string]: number;
     };
@@ -42,7 +50,7 @@ export interface PatientDashboardResponse {
     file_name: string;
     file_path: string;
     type: string;
-    file?: File;
+    file?: string;
   }
 
   export interface TakeDoseFormResponse {
@@ -61,4 +69,9 @@ export interface PatientDashboardResponse {
     prolongedIllness: string | null;
   }
   
-  
+  export interface fileProps  {
+    uri: string;
+    name: string;
+    file: string;
+    mimeType: string;
+  }

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View,Text, TouchableOpacity, StyleSheet, FlatList,SafeAreaView,} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { format } from 'date-fns';
-import { patients,Patient } from '../../constants/data/mockPatients';
 import PatientCard from '../../components/doctor-viewpatients/PatientCard';
 import PatientTable from '../../components/doctor-viewpatients/PatientTable';
 import PatientDetail from '../../components/doctor-viewpatients/PatientDetail';
-import ReassignDoctorModal from '@/components/doctor-viewpatients/ReassignDoctorModal';
-import ReassignCaretakerModal from '@/components/doctor-viewpatients/ReassignCaretakerModal';
 import { useDoctorContext } from '@/hooks/context/DoctorContext';
+import { Doctor, Patient } from '@/types/doctor';
+import NotFoundAnimation from '@/components/animations/NotFoundAnimation';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/hooks/api';
 
 type ViewMode = 'cards' | 'table';
 
@@ -29,8 +30,17 @@ const Patients = () => {
   const toggleViewMode = () => {
     setViewMode(viewMode === 'cards' ? 'table' : 'cards');
   };
+
+  const {data:DoctorsData = null} = useQuery({
+    queryKey:["doctors"],
+    queryFn:async() => {
+      const response = await apiClient.get<{doctors:Doctor[]}>("/doctor/doctors")
+      return response.data.doctors
+    }
+  })
   
   if (selectedPatient) {
+    console.log(selectedPatient)
     return <PatientDetail patient={selectedPatient} onBack={handleBackToList} />;
   }
   
@@ -54,19 +64,26 @@ const Patients = () => {
         
         {viewMode === 'cards' ? (
           <FlatList
-            data={patients}
+            data={doctorData?.patients}
             renderItem={({ item }) => (
               <PatientCard 
                 patient={item} 
+                doctors={DoctorsData || []}
                 onViewPatient={handleViewPatient} 
               />
             )}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.ID}
             contentContainerStyle={styles.cardList}
+            ListEmptyComponent={() => (
+              <View className='flex-1 mt-5 w-full justify-center items-center'>
+                <NotFoundAnimation/>
+                <Text className='font-semibold text-center'>No patients available</Text>
+              </View>
+            )}
           />
         ) : (
           <PatientTable 
-            patients={patients} 
+            patients={doctorData?.patients!} 
             onViewPatient={handleViewPatient} 
           />
         )}
@@ -79,6 +96,8 @@ const Patients = () => {
             {format(new Date(), "HH:mm 'Local'")}
           </Text>
         </View>
+
+
       </LinearGradient>
     </SafeAreaView>
   );

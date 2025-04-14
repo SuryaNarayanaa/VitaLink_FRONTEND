@@ -1,4 +1,5 @@
 
+import { Patient } from '@/types/doctor';
 import React, { useState } from 'react';
 import { 
   View, 
@@ -8,14 +9,13 @@ import {
   TextInput,
   ScrollView 
 } from 'react-native';
-import { Patient } from '../../constants/data/mockPatients';
 
 interface PatientTableProps {
   patients: Patient[];
   onViewPatient: (patient: Patient) => void;
 }
 
-type SortField = 'name' | 'age' | 'gender' | 'doctorName' | 'caretakerName';
+type SortField = 'name' | 'age' | 'gender' | 'doctor' | 'caretakerName';
 type SortDirection = 'asc' | 'desc';
 
 const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) => {
@@ -27,12 +27,11 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
 
   // Search and sort patients
   const filteredPatients = patients
-    .filter(patient => 
-      patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.caretakerName.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
+  .filter(patient => 
+    (patient.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (patient.doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (patient.caretakerName?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  ).sort((a, b) => {
       if (sortDirection === 'asc') {
         return a[sortField] > b[sortField] ? 1 : -1;
       } else {
@@ -125,10 +124,10 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.headerCell} 
-              onPress={() => handleSort('doctorName')}
+              onPress={() => handleSort('doctor')}
             >
               <Text style={styles.headerText}>Doctor Name</Text>
-              {sortField === 'doctorName' && (
+              {sortField === 'doctor' && (
                 <Text>{sortDirection === 'asc' ? '↑' : '↓'}</Text>
               )}
             </TouchableOpacity>
@@ -148,7 +147,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
           
           {/* Table Rows */}
           {currentEntries.map((patient) => (
-            <View key={patient.id} style={styles.tableRow}>
+            <View key={patient.ID} style={styles.tableRow}>
               <View style={styles.cell}>
                 <Text>{patient.name}</Text>
               </View>
@@ -159,7 +158,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
                 <Text>{patient.gender}</Text>
               </View>
               <View style={styles.cell}>
-                <Text>{patient.doctorName}</Text>
+                <Text>{patient.doctor}</Text>
               </View>
               <View style={styles.cell}>
                 <Text>{patient.caretakerName}</Text>

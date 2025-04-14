@@ -1,48 +1,47 @@
-
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  Modal, 
-  StyleSheet,
-  SafeAreaView
-} from 'react-native';
+import { Modal, SafeAreaView, TouchableOpacity, View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { X } from 'lucide-react';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Doctor, Patient } from '@/types/doctor';
+import CloseAnimation from '../animations/closeAnimation';
+import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/hooks/api';
 
 interface ReassignDoctorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  patientId: string;
-  currentDoctor: string;
+  patient: Patient;
+  doctors:Doctor[]
 }
-
-const doctors = [
-  "Dr. K. Tamilarasu",
-  "Dr. S. Venkatesh",
-  "Dr. R. Priya",
-  "Dr. M. Kumar"
-];
-
-const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  patientId, 
-  currentDoctor 
+const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({
+  isOpen,
+  onClose,
+  patient,
+  doctors
 }) => {
-  const [selectedDoctor, setSelectedDoctor] = useState<string>(doctors[0]);
+  const [selectedDoctor, setSelectedDoctor] = useState<string>(doctors[0]?.fullname || '');
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>(doctors[0]?.ID || '');
+  const queryclient = useQueryClient()
+
+  const {mutate:reassignDoctor} = useMutation({
+    mutationFn: async(doctorId:string) => {
+      const response = await apiClient.post(`/doctor/reassign/${patient.ID}?doc=${doctorId}&typ=doctor`)
+      return response.data
+    },
+    onSuccess:() => {
+      console.log("Success Send a Toast")
+    } ,
+    onError:(err) => {
+       console.log("error",err)
+    }
+  })
 
   const handleConfirm = () => {
-    if (selectedDoctor) {
-      // In a real app, this would make an API call to update the doctor
-      console.log(`Doctor reassigned to ${selectedDoctor}`);
-      onClose();
-    } else {
-      console.error("Please select a doctor");
-    }
+    reassignDoctor(selectedDoctorId)
+    onClose();
   };
+
 
   return (
     <Modal
@@ -51,98 +50,52 @@ const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({
       visible={isOpen}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View style={styles.header}>
-            <Text style={styles.modalTitle}>Reassign Doctor</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-black/50">
+        <LinearGradient
+          colors={['#ffffff', '#f2f2f2']}
+          className="w-[85%] rounded-2xl p-6 shadow-lg "
+        >
+          {/* Header */}
+          <View className="flex-row justify-between items-center mb-4">
+            <View className="flex-1">
+              <Text className="text-xl font-bold text-gray-800">Reassign Doctor</Text>
+            </View>
+            <TouchableOpacity onPress={onClose} className="p-2">
+              <Ionicons name="close-outline" size={24} />
             </TouchableOpacity>
           </View>
-          
-          <View style={styles.pickerContainer}>
+
+          {/* Picker Container */}
+          <View className="bg-gray-100 rounded-lg mb-6">
             <Picker
-              selectedValue={selectedDoctor}
-              onValueChange={(itemValue) => setSelectedDoctor(itemValue)}
-              style={styles.picker}
+              selectedValue={selectedDoctorId}
+              onValueChange={(itemValue) => {
+                const selected = doctors.find((doctor) => doctor.ID === itemValue);
+                setSelectedDoctor(selected?.fullname || '');
+                setSelectedDoctorId(itemValue);
+              }}
+              style={{ height: 50, width: '100%' }}
+              itemStyle={{ fontSize: 16 }}
             >
-              {doctors.map((doctor) => (
-                <Picker.Item key={doctor} label={doctor} value={doctor} />
-              ))}
+              {doctors?.map((doctor) => {
+                return (
+                  <Picker.Item key={doctor.ID} label={doctor.fullname} value={doctor.ID} />
+                );
+              })}
             </Picker>
           </View>
-          
+
+          {/* Confirm Button */}
           <TouchableOpacity
-            style={styles.confirmButton}
             onPress={handleConfirm}
+            className="bg-blue-600 py-3 rounded-lg items-center"
           >
-            <Text style={styles.confirmButtonText}>Confirm</Text>
+            <Text className="text-white text-lg font-semibold">Confirm</Text>
           </TouchableOpacity>
-        </View>
+        </LinearGradient>
       </SafeAreaView>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalView: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  closeButton: {
-    padding: 5,
-  },
-  closeButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  confirmButton: {
-    backgroundColor: '#2196F3',
-    borderRadius: 5,
-    padding: 10,
-    alignItems: 'center',
-  },
-  confirmButtonText: {
-    color: 'white',
-    fontWeight: '500',
-    fontSize: 16,
-  },
-});
 
 export default ReassignDoctorModal;

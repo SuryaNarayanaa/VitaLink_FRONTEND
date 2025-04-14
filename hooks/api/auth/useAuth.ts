@@ -18,9 +18,6 @@ const useAuth = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Login with username and password
-   */
   const login = async (credentials: LoginCredentials): Promise<LoginResponse | null> => {
     setIsLoading(true);
     setError(null);
@@ -53,7 +50,7 @@ const useAuth = () => {
     
     try {
 
-      await apiClient.get('/auth/logout');
+      await apiClient.post('/auth/logout');
       await SecureStore.deleteItemAsync('access_token');
       await SecureStore.deleteItemAsync('refresh_token');
       await SecureStore.deleteItemAsync('userRole');

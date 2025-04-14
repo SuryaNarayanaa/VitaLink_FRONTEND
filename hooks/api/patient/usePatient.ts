@@ -39,10 +39,13 @@ export const usePatient = () => {
       formData.append('date', inrData.date);
       
       if (inrData.file) {
-        formData.append('file', inrData.file);
+        formData.append('file', inrData.file!);
+        formData.append('file_name',inrData.file_name!)
       }
+      console.log(inrData.file)
+
       
-      const response = await apiClient.post('/patient/update-inr', formData, {
+      const response = await apiClient.post('/patient/update_inr', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -51,7 +54,7 @@ export const usePatient = () => {
       return response.data;
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to update INR report');
-      return null;
+      throw err(err.response?.data?.detail || 'Failed to update INR report');
     } finally {
       setIsLoading(false);
     }

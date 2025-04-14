@@ -11,13 +11,17 @@ import {
   SafeAreaView,
   Dimensions
 } from 'react-native';
-import { Patient } from '@/constants/data/mockPatients';
 import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/hooks/api';
+import { PatientDashboardResponse } from '@/types/patient';
+import { Patient } from '@/types/doctor';
 
 interface PatientDetailProps {
   patient: Patient;
   onBack: () => void;
 }
+
 
 const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   const [activeTab, setActiveTab] = useState('inr');
@@ -40,34 +44,39 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
     SUN: "4",
   });
 
-  // Mock INR data for the chart
-  const inrData = {
-    labels: ['JAN', 'FEB', 'MAR', 'APR'],
-    datasets: [
-      {
-        data: [0, 0, 0, 0],
-      }
-    ]
-  };
-
   const toggleDay = (day: string, enabled: boolean) => {
-    // In a real app, this would update the dosage schedule
     console.log(`${day} is now ${enabled ? 'enabled' : 'disabled'}`);
   };
 
-  const handleEditDosage = () => {
-    if (editMode) {
-      // In a real app, this would save the dosage changes
-      console.log("Saving dosage:", dosage);
-    }
-    setEditMode(!editMode);
-  };
 
   const handleDosageChange = (day: Day, value: string) => {
     setDosage(prev => ({
       ...prev,
       [day]: value
     }));
+  };
+
+  const {data:PatientData,isLoading,isError} = useQuery({
+    queryKey:['patient'],
+    queryFn:async() => {
+      const response = await apiClient.get<PatientDashboardResponse>(`/doctor/view-patient/${patient.ID}`)
+      return response.data;
+    }
+  })
+
+  const {mutate:changeDosage,isError:errorMutate,isSuccess,isPending} = useMutation({
+     mutationFn:async(dosage:string[]) => {
+        const response = await apiClient.post(`/doctor/edit-dosage/${patient.ID}`,{dosage})
+        return response.data
+     }
+  })
+
+  const handleEditDosage = () => {
+    if (editMode) {
+      console.log("Saving dosage:", dosage);
+
+    }
+    setEditMode(!editMode);
   };
 
   const renderTabContent = () => {
@@ -86,7 +95,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>MISSED DOSES:</Text>
               <ScrollView style={styles.missedDosesContainer} nestedScrollEnabled={true}>
-                {patient.missedDoses.map((date, index) => (
+                {PatientData?.missed_doses.map((date, index) => (
                   <View key={index} style={styles.missedDoseItem}>
                     <Text>{date}</Text>
                   </View>
@@ -103,11 +112,15 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
                     <Text style={[styles.tableHeaderCell, styles.doseCell]}>Dosage</Text>
                   </View>
                   <ScrollView nestedScrollEnabled={true}>
-                    {Object.entries(patient.prescription).map(([day, dose]) => (
+                    {Object.entries(PatientData?.patient?.dosage_schedule || {}).map(([day, dosage]) => (
                       <View key={day} style={styles.tableRow}>
-                        <Text style={[styles.tableCell, styles.dayCell]}>{day}</Text>
-                        <Text style={[styles.tableCell, styles.doseCell]}>{dose}</Text>
-                      </View>
+                      <Text style={[styles.tableCell, styles.dayCell]}>
+                      {typeof dosage === 'object' && dosage.day ? dosage.day : String(dosage)}
+                      </Text>
+                      <Text style={[styles.tableCell, styles.doseCell]}>
+                        {typeof dosage === 'object' && dosage.dosage ? dosage.dosage : String(dosage)}
+                      </Text>
+                    </View>
                     ))}
                   </ScrollView>
                 </View>
@@ -153,30 +166,30 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
             <View style={styles.noteSection}>
               <Text style={styles.noteLabel}>SIDE EFFECTS:</Text>
-              <Text style={styles.noteText}>{patient.sideEffects || "None"}</Text>
+              <Text style={styles.noteText}>{PatientData?.patient?.sideeffects || "None"}</Text>
               
               <Text style={styles.noteLabel}>LIFESTYLE CHANGES:</Text>
-              <Text style={styles.noteText}>{patient.lifestyleChanges || "None"}</Text>
+              <Text style={styles.noteText}>{PatientData?.patient?.lifestylechanges || "None"}</Text>
               
               <Text style={styles.noteLabel}>OTHER MEDICATION:</Text>
-              <Text style={styles.noteText}>{patient.otherMedication || "None"}</Text>
+              <Text style={styles.noteText}>{PatientData?.patient?.othermedication || "None"}</Text>
               
               <Text style={styles.noteLabel}>PROLONGED ILLNESS:</Text>
-              <Text style={styles.noteText}>{patient.prolongedIllness || "None"}</Text>
+              <Text style={styles.noteText}>{PatientData?.patient?.prolongedillness || "None"}</Text>
             </View>
             
             <View style={styles.contactsSection}>
               <View style={styles.contactRow}>
                 <Text style={styles.contactLabel}>Contact:</Text>
-                <Text style={styles.contactValue}>{patient.contact}</Text>
+                <Text style={styles.contactValue}>{PatientData?.patient.contact}</Text>
               </View>
               <View style={styles.contactRow}>
                 <Text style={styles.contactLabel}>Kin Name:</Text>
-                <Text style={styles.contactValue}>{patient.kinName}</Text>
+                <Text style={styles.contactValue}>{PatientData?.patient.kin_name}</Text>
               </View>
               <View style={styles.contactRow}>
                 <Text style={styles.contactLabel}>Kin Contact:</Text>
-                <Text style={styles.contactValue}>{patient.kinContact}</Text>
+                <Text style={styles.contactValue}>{PatientData?.patient.kin_contact}</Text>
               </View>
             </View>
             
@@ -190,7 +203,6 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fixed Header Section */}
       <View style={styles.fixedHeader}>
         <View style={styles.header}>
           <TouchableOpacity 
@@ -203,7 +215,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           </View>
           </TouchableOpacity>
           <View style={styles.patientHeader}>
-            <Text style={styles.patientName}>{patient.name}</Text>
+            <Text style={styles.patientName}>{patient?.name}</Text>
             <Text style={styles.patientInfo}>(Age: {patient.age}, Gender: {patient.gender})</Text>
           </View>
         </View>
@@ -212,14 +224,16 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <View>
             <Text style={styles.targetINRLabel}>Target INR:</Text>
             <Text style={styles.targetINRValue}>
-              {patient.targetINR.min} - {patient.targetINR.max}
+              {PatientData?.patient?.target_inr_min} - {PatientData?.patient?.target_inr_max}
             </Text>
           </View>
           
           <View>
-            <Text style={styles.latestINRLabel}>Latest INR: {patient.latestINR}</Text>
+            <Text style={styles.latestINRLabel}>Latest INR: {PatientData?.patient.inr_reports?.[0]
+                ? `${PatientData?.patient?.inr_reports[0].inr_value.toFixed(1)}`
+                : 'N/A'}</Text>
             <Text style={styles.latestINRDate}>
-              AS OF {new Date(patient.latestINRDate).toLocaleDateString()}
+              AS OF {new Date(PatientData?.patient?.inr_reports[0].date!).toLocaleDateString()}
             </Text>
           </View>
         </View>
@@ -231,23 +245,23 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <View style={styles.infoTable}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Doctor</Text>
-              <Text style={styles.infoValue}>{patient.doctorName}</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient.doctor}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Caregiver</Text>
-              <Text style={styles.infoValue}>{patient.caretakerName}</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient?.caretaker}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Therapy</Text>
-              <Text style={styles.infoValue}>{patient.therapy}</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient.therapy}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Therapy Start Date</Text>
-              <Text style={styles.infoValue}>{patient.therapyStartDate}</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient?.therapy_start_date}</Text>
             </View>
           </View>
           
-          <View style={styles.infoTable}>
+          {/*<View style={styles.infoTable}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Medical History</Text>
               <Text style={styles.infoValue}>{patient.medicalHistory}</Text>
@@ -256,10 +270,10 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
               <Text style={styles.infoLabel}></Text>
               <Text style={styles.infoValue}>{patient.medicalHistoryYears} years</Text>
             </View>
-        </View>
+          </View>*/}
       </View>
 
-      <View style={styles.tabContainer}>
+        <View style={styles.tabContainer}>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'inr' && styles.activeTab]}
             onPress={() => setActiveTab('inr')}
@@ -282,6 +296,8 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           {renderTabContent()}
         </View>
       </ScrollView>
+      
+      
     </SafeAreaView>
   );
 };

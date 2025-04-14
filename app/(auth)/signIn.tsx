@@ -34,7 +34,9 @@ export default function SignIn() {
     if (!credentials.username || !credentials.password) {
       return;
     }
-    
+    if(credentials.username === '' || credentials.password === ''){
+      return
+    }
     try {
       const response = await login(credentials);
       if (response && response.role) {

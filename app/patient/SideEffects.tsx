@@ -12,6 +12,7 @@ import { Checkbox } from 'react-native-paper';
 import {useQueryClient,useMutation} from '@tanstack/react-query'
 import { ReportFormResponse } from '@/types/patient';
 import { apiClient } from '@/hooks/api';
+import MutltiLinetextInput from '@/components/Patient/MutliLineTextInput';
 const sideEffects = [
   'Heavy Menstrual Bleeding',
   'Black or Bloody Stool',
@@ -48,9 +49,10 @@ const  SplitSideEffects = (reportSideEffects:string | null ,checkbox :string[]) 
 const SideEffects = () => {
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [otherSideEffects, setOtherSideEffects] = useState('');
+  const [buttonState,setButtonState] = useState<'success' | 'error'  | 'default'>('default') 
 
-  const queryClient = useQueryClient()
-  const data = queryClient.getQueryData<ReportFormResponse>(['reports']);
+  const queryclient = useQueryClient()
+  const data = queryclient.getQueryData<ReportFormResponse>(['reports']);
   const reportData: ReportFormResponse | null = data ?? null;
   
   console.log(reportData);
@@ -70,14 +72,19 @@ const SideEffects = () => {
     }));
   };
 
-  const {mutate:reportMutation,isPending} = useMutation({
-    mutationFn:async (formdata:FormData) => {
-      const result = await apiClient.post('/patient/report',formdata,{
-        headers:{'Content-Type': 'multipart/form-data'},
-      })
+  const {mutate:reportMutation,isPending,isSuccess,isError} = useMutation({
+    mutationFn: async(formdata:FormData) => {
+    const result = await apiClient.post('/patient/report?typ=sideeffects',formdata,{
+      headers:{'Content-Type': 'multipart/form-data'},
+    })
     },
-    onSuccess:() => {queryClient.invalidateQueries({queryKey:['reports']})}
-  })
+    onSuccess:() => {
+      queryclient.invalidateQueries({queryKey:['reports']})
+      setOtherSideEffects('')
+      setButtonState("success")
+      },
+      onError:() => { setButtonState("error") }
+    })
   
 
 
@@ -85,7 +92,6 @@ const SideEffects = () => {
     const selected = Object.keys(checkedItems).filter((key) => checkedItems[key]);
     const combined = [...selected, otherSideEffects].filter(Boolean).join(', ');
     const formData = new FormData();
-    formData.append('typ', 'sideEffects');
     formData.append('field', combined);
     reportMutation(formData);
   };
