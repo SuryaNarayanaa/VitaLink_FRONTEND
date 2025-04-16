@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import apiClient from '../apiClient';
+import { Doctor, DoctorDashboardResponse, DosageSchedule, PatientDetails, PatientFormData, ReportResponse } from '@/types/doctor';
 
 export const useDoctor = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

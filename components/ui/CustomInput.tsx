@@ -24,10 +24,10 @@ const InputField = ({
   return (
     <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className='my-3 w-full'>
+            <View className='my-1 w-full'>
                 <Text className={`mb-3 ${labelStyle}`}>{label}</Text>
                 <View className={`flex flex-row justify-start items-center relative
-                rounded-full  ${containerStyle}`}>
+                ${containerStyle}`}>
                     {icon && <Image source={icon} className={`w-6 h-6 ml-4 ${iconStyle}`}/>}
                     <TextInput className={`rounded-full p-4 text-[15px] flex-1 text-left ${inputStyle}`}
                     secureTextEntry={secureTextEntry} placeholder={placeholder} {...props}

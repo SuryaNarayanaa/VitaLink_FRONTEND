@@ -63,7 +63,7 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient,doctor
       
       <ReassignCaretakerModal 
       isOpen={showCaretakerModal} onClose={() => setShowCaretakerModal(false)}
-      patient={patient}/>
+      patient={patient} doctors={doctors}/>
 
       <ReassignDoctorModal  
       isOpen={showDoctorModal} onClose={() => setShowDoctorModal(false)}

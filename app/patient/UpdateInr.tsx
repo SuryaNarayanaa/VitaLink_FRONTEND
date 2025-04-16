@@ -6,7 +6,7 @@ import FileInputField from '@/components/ui/FileInputField';
 import { useState,useRef,useEffect } from 'react';
 import { usePatient } from '@/hooks/api';
 import { INRReport,fileProps } from '@/types/patient';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeState } from '@/hooks/useSafeState';
@@ -73,6 +73,8 @@ export default function UpdateInr() {
 
   const scaleAnim = useRef(new Animated.Value(1)).current
 
+  const queryclient = useQueryClient();
+
   useEffect(() => {
     if (buttonStatus !== 'default') {
       Animated.sequence([
@@ -103,7 +105,9 @@ export default function UpdateInr() {
 
   const {mutateAsync:mutateUpdateInr,isPending,isSuccess} = useMutation({
     mutationFn:async(report:INRReport) => await updateINR(report),
-    onSuccess:()=>{setButtonStatus('success');},
+    onSuccess:()=>{setButtonStatus('success')
+      queryclient.invalidateQueries({queryKey:["profile"]})
+    },
     onError:()=>{setError("A  Error has occured while submitting The report Try Again");setButtonStatus('error');}
   })
 

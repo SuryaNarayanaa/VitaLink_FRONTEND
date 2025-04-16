@@ -26,11 +26,12 @@ const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({
 
   const {mutate:reassignDoctor} = useMutation({
     mutationFn: async(doctorId:string) => {
-      const response = await apiClient.post(`/doctor/reassign/${patient.ID}?doc=${doctorId}&typ=doctor`)
+      const response = await apiClient.put(`/doctor/reassign/${patient.ID}?doc=${doctorId}&typ=doctor`)
       return response.data
     },
     onSuccess:() => {
       console.log("Success Send a Toast")
+      queryclient.invalidateQueries({queryKey:["doctorProfile"]})
     } ,
     onError:(err) => {
        console.log("error",err)

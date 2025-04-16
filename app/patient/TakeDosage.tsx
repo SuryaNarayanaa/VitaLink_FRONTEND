@@ -63,7 +63,8 @@ export default function TakeDosage() {
         await apiClient.put(`/patient/take_dose`,{date})
       },
       onSuccess:() => {
-          queryclient.invalidateQueries({queryKey:['profile',"missed_doses"]})
+          queryclient.invalidateQueries({queryKey:['profile']})
+          queryclient.invalidateQueries({queryKey:["missed_doses"]})
       },
       onError:(error)=>{
         setErrorMessage(error?.message || "Failed to take dosage. Try again.");

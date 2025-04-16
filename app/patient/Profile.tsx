@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { ReportFormResponse } from '@/types/patient';
 import Chart from '@/components/Patient/Chart';
+import {Link} from 'expo-router'
 
 export const formatDateTime = (isoString: string) => {
   const date = new Date(isoString);
@@ -46,13 +47,17 @@ const Profile = () => {
       return response.data
     }
   })
+
+  const validChartData: Record<string, number> = Array.isArray(chart_data)
+  ? {}  // or convert array to object here
+  : chart_data;
   
   return (
     <ScrollView style={styles.container}>
       <View className='bg-[#ffffff99] backdrop:blur-md p-11 m-[15px] rounded-2xl'>
         <Text className='text-2xl font-bold text-[#2a2626]'>{patient.name}</Text>
         <Text className='mt-2 font-semibold  text-[#555252] tracking-wide'>{`(Age: ${patient.age}, Gender: ${patient.gender})`}</Text>
-
+        
         <View className='h-[1px] bg-[#555050c9] w-full my-5'/>
 
         <View className='flex flex-row items-center justify-start gap-x-5'>
@@ -113,7 +118,7 @@ const Profile = () => {
           </View>
         </View>
 
-        {/*<Chart title='INR values' chartData={Array.isArray(chart_data) ? {} : chart_data}/>*/}
+        <Chart title='INR values' chartData={validChartData}/>
 
         <View className='mt-5'>
           <Text style={styles.sectionTitle}>MISSED DOSES:</Text>

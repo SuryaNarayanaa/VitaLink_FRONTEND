@@ -3,9 +3,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useDoctor } from '../api';
+import { apiClient, useDoctor } from '../api';
 import LoadingAnimation from '@/components/animations/LoadingAnimation';
-
+import { DoctorDashboardResponse } from '@/types/doctor';
 interface DoctorContextProps {
   doctorData: DoctorDashboardResponse | null;
   isLoading: boolean;
@@ -38,13 +38,13 @@ export const DoctorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     fetchUserRole();
-  }, [router]);
+  }, [router,userRole]);
 
   const { data: doctorData = null, isLoading, error } = useQuery<DoctorDashboardResponse | null>({
     queryKey: ['doctorProfile'],
     queryFn: async () => {
-      const response = await getDoctorDashboard();
-      return response
+      const response = await apiClient.get<DoctorDashboardResponse>('/doctor');
+      return response.data
     },
     enabled: userRole === 'doctor',
   });

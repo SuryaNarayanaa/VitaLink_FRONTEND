@@ -6,6 +6,8 @@ import axios from 'axios';
 import { BASE_URL } from '../config/env';
 import * as SecureStore from 'expo-secure-store';
 import { useDoctor } from '@/hooks/api/doctor/useDoctor';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/hooks/api';
 // Types based on API response
 interface INRReport {
   inr_value: number;
@@ -17,113 +19,53 @@ interface INRReport {
 }
 
 interface ReportData {
+  patient_ID:string;
   patient_name: string;
   inr_report: INRReport;
 }
+
+const getStatusColor = (value: number) => {
+  if (value < 2.0) return '#2196F3'; // Low - Blue
+  if (value >= 2.0 && value <= 3.0) return '#4CAF50'; // Normal - Green
+  if (value > 3.0 && value < 4.0) return '#FF9800'; // High - Orange
+  return '#E41E4F'; // Critical - Red (using the app's primary color for critical)
+};
+
+const getStatus = (value: number) => {
+  if (value < 2.0) return 'Low';
+  if (value >= 2.0 && value <= 3.0) return 'Normal';
+  if (value > 3.0 && value < 4.0) return 'High';
+  return 'Critical';
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
 
 export default function ViewReports() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<ReportData[]>([]);
-  const [filterType, setFilterType] = useState('today');
+  const [filterType, setFilterType] = useState<'today' | 'all'>('today');
+  const queryclient = useQueryClient();
   
-  const { getReports, isLoading: loading, error } = useDoctor();
-
-  useEffect(() => {
-    fetchReports();
-  }, [filterType]);
+  
+  const {data:patientReport,isLoading,isError,error} = useQuery({
+    queryKey:["patient_reports",filterType],
+    queryFn:async () => {
+       const reponse = await apiClient.get<{reports:ReportData[]}>(`/doctor/reports?typ=${filterType}`)
+       return reponse.data.reports
+    }
+  })
 
   const fetchReports = async () => {
-    try {
-      setRefreshing(true);
-      const response = await getReports(filterType);
-      
-      if (response && response.reports && response.reports.length > 0) {
-        setReports(response.reports);
-      } else {
-        // Add dummy reports when no data is available
-        setReports([
-          {
-        patient_name: "John Smith",
-        inr_report: {
-          inr_value: 2.5,
-          location_of_test: "Home",
-          date: new Date().toISOString(),
-          file_name: "inr_report_john.pdf",
-          type: "INR Test"
-        }
-          },
-          {
-        patient_name: "Sarah Johnson",
-        inr_report: {
-          inr_value: 4.2,
-          location_of_test: "Clinic",
-          date: new Date().toISOString(),
-          type: "INR Test"
-        }
-          },
-          {
-        patient_name: "Michael Brown",
-        inr_report: {
-          inr_value: 1.8,
-          location_of_test: "Hospital",
-          date: new Date(Date.now() - 86400000).toISOString(),
-          file_name: "inr_report_michael.pdf",
-          type: "INR Test"
-        }
-          },
-          {
-        patient_name: "Emily Davis",
-        inr_report: {
-          inr_value: 3.6,
-          location_of_test: "Lab",
-          date: new Date().toISOString(),
-          type: "INR Test"
-        }
-          }
-        ]);
-      }
-    } catch (err) {
-      console.error('Error fetching reports:', err);
-      
-      // Handle authentication errors if needed
-      if (err instanceof Error && err.message.includes('session expired')) {
-        setTimeout(() => {
-          router.replace('/(auth)/signIn');
-        }, 2000);
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchReports();
-  };
-
-  const getStatusColor = (value: number) => {
-    if (value < 2.0) return '#2196F3'; // Low - Blue
-    if (value >= 2.0 && value <= 3.0) return '#4CAF50'; // Normal - Green
-    if (value > 3.0 && value < 4.0) return '#FF9800'; // High - Orange
-    return '#E41E4F'; // Critical - Red (using the app's primary color for critical)
-  };
-
-  const getStatus = (value: number) => {
-    if (value < 2.0) return 'Low';
-    if (value >= 2.0 && value <= 3.0) return 'Normal';
-    if (value > 3.0 && value < 4.0) return 'High';
-    return 'Critical';
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
+    await queryclient.invalidateQueries({queryKey:["patient_reports"]})
+  }
 
   const renderReportItem = ({ item }: { item: ReportData }) => {
     const status = getStatus(item.inr_report.inr_value);
@@ -214,28 +156,28 @@ export default function ViewReports() {
           style={[styles.filterTab, filterType === 'all' && styles.activeTab]}
           onPress={() => setFilterType('all')}
         >
-          <Text style={[styles.filterTabText, filterType === 'all' && styles.activeTabText]}>-
+          <Text style={[styles.filterTabText, filterType === 'all' && styles.activeTabText]}>
             All Reports
           </Text>
         </TouchableOpacity>
       </View>
       
-      {loading && !refreshing ? (
+      {isLoading && !refreshing ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#E41E4F" />
           <Text style={styles.loaderText}>Loading reports...</Text>
         </View>
-      ) : error ? (
+      ) : isError ? (
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={48} color="#E41E4F" />
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorText}>{error.message}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchReports}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
-          data={reports}
+          data={patientReport}
           keyExtractor={(item, index) => `${item.patient_name}-${index}`}
           renderItem={renderReportItem}
           contentContainerStyle={[
@@ -246,7 +188,7 @@ export default function ViewReports() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={fetchReports}
               colors={["#E41E4F"]}
             />
           }
@@ -306,6 +248,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
+    width:'80%',
     marginBottom: 16,
     ...Platform.select({
       ios: {

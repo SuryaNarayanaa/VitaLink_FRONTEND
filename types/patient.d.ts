@@ -12,10 +12,7 @@ export interface Patient{
     duration_unit: string;
   }[];
   therapy_start_date: string;
-  dosage_schedule: {
-    day: number;
-    dosage: number;
-  }[];
+  dosage_schedule:DosageScheduleItem[]
   contact: string;
   kin_name: string;
   kin_contact: string;
@@ -33,7 +30,10 @@ export interface Patient{
   exp: number;
 }
 
-
+export interface DosageScheduleItem {
+  day:string,
+  dosage:number
+}
 export interface PatientDashboardResponse {
     patient: Patient
     chart_data: {
@@ -74,4 +74,20 @@ export interface PatientDashboardResponse {
     name: string;
     file: string;
     mimeType: string;
+  }
+
+
+  export interface PatientCreateRequest {
+    name: string;
+    contact: string;
+    age: number;
+    gender: string;
+    target_inr_min: number;
+    target_inr_max: number;
+    therapy: string;
+    medical_history: MedicalHistoryItem[];
+    therapy_start_date: string;
+    dosage_schedule: DosageScheduleItem[];
+    kin_name: string;
+    kin_contact: string;
   }

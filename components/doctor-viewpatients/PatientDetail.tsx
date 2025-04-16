@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -12,15 +12,23 @@ import {
   Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
-import { PatientDashboardResponse } from '@/types/patient';
+import { DosageScheduleItem, PatientDashboardResponse } from '@/types/patient';
 import { Patient } from '@/types/doctor';
+import Chart from '../Patient/Chart';
 
 interface PatientDetailProps {
   patient: Patient;
   onBack: () => void;
 }
+
+const convertPrescriptionObjectToArray = (prescriptionArray: DosageScheduleItem[]): { day: string; dosage: number }[] => {
+  return prescriptionArray.map(item => ({
+    day: item.day.toUpperCase(),
+    dosage: item.dosage,
+  }));
+};
 
 
 const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
@@ -34,50 +42,60 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   | 'FRI'
   | 'SAT'
   | 'SUN';
-  const [dosage, setDosage] = useState({
-    MON: "4",
-    TUE: "4",
-    WED: "4",
-    THU: "4",
-    FRI: "4",
-    SAT: "4",
-    SUN: "4",
-  });
+ 
+  const queryclient = useQueryClient()
+
+  const {data:PatientData = null,isLoading,isError} = useQuery({
+    queryKey:['patient', patient.ID],
+    queryFn:async() => {
+      const response = await apiClient.get<PatientDashboardResponse>(`/doctor/view-patient/${patient.ID}`)
+      return response.data;
+    },
+  })
+
+  const [dosage, setDosage] = useState<{ day: string; dosage: number }[]>([]);
+
+  useEffect(() => {
+    if (PatientData && PatientData.patient && PatientData.patient.dosage_schedule) {
+      const converted = convertPrescriptionObjectToArray(PatientData.patient.dosage_schedule);
+      setDosage(converted);
+      console.log("COnverted data:",converted)
+    }
+  }, [PatientData]);
 
   const toggleDay = (day: string, enabled: boolean) => {
     console.log(`${day} is now ${enabled ? 'enabled' : 'disabled'}`);
   };
 
 
-  const handleDosageChange = (day: Day, value: string) => {
-    setDosage(prev => ({
-      ...prev,
-      [day]: value
-    }));
+  const handleDosageChange = (day: string, value: string) => {
+    setDosage(prev =>
+      prev.map(d =>
+        d.day === day ? { ...d, dosage: parseFloat(value) || 0 } : d
+      )
+    );
   };
-
-  const {data:PatientData,isLoading,isError} = useQuery({
-    queryKey:['patient'],
-    queryFn:async() => {
-      const response = await apiClient.get<PatientDashboardResponse>(`/doctor/view-patient/${patient.ID}`)
-      return response.data;
-    }
-  })
+  
 
   const {mutate:changeDosage,isError:errorMutate,isSuccess,isPending} = useMutation({
-     mutationFn:async(dosage:string[]) => {
-        const response = await apiClient.post(`/doctor/edit-dosage/${patient.ID}`,{dosage})
+     mutationFn:async(dosage:DosageScheduleItem[]) => {
+        const response = await apiClient.put(`/doctor/edit-dosage/${patient.ID}`,{dosage_schedule:dosage})
         return response.data
-     }
+     },
+     onSuccess:() => { queryclient.invalidateQueries({queryKey:["patient"]});setDosage(dosage); 
+     setEditMode(false);   }
   })
 
   const handleEditDosage = () => {
     if (editMode) {
-      console.log("Saving dosage:", dosage);
-
+      changeDosage(dosage)
     }
     setEditMode(!editMode);
   };
+
+  const validChartData = typeof PatientData?.chart_data === 'object' && !Array.isArray(PatientData.chart_data)
+  ? PatientData.chart_data
+  : {};
 
   const renderTabContent = () => {
     if (activeTab === 'inr') {
@@ -85,11 +103,9 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
         <ScrollView style={styles.tabContentContainer}>
           <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>INR Values</Text>
-              
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>View INR Reports</Text>
-              </TouchableOpacity>
+              <View className='mt-5'>
+                 <Chart  title={`INR values for ${patient.name}`}  chartData={validChartData} />
+              </View>
             </View>
             
             <View style={styles.section}>
@@ -112,21 +128,17 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
                     <Text style={[styles.tableHeaderCell, styles.doseCell]}>Dosage</Text>
                   </View>
                   <ScrollView nestedScrollEnabled={true}>
-                    {Object.entries(PatientData?.patient?.dosage_schedule || {}).map(([day, dosage]) => (
+                    {(dosage|| {}).map(({day,dosage},index) => (
                       <View key={day} style={styles.tableRow}>
-                      <Text style={[styles.tableCell, styles.dayCell]}>
-                      {typeof dosage === 'object' && dosage.day ? dosage.day : String(dosage)}
-                      </Text>
-                      <Text style={[styles.tableCell, styles.doseCell]}>
-                        {typeof dosage === 'object' && dosage.dosage ? dosage.dosage : String(dosage)}
-                      </Text>
+                      <Text style={[styles.tableCell, styles.dayCell]}>{day}</Text>
+                      <Text style={[styles.tableCell, styles.doseCell]}>{dosage}</Text>
                     </View>
                     ))}
                   </ScrollView>
                 </View>
               ) : (
                 <ScrollView style={styles.editDosageContainer} nestedScrollEnabled={true}>
-                  {(Object.keys(dosage) as Day[]).map(day => (
+                  {( dosage || {}).map(({day,dosage},index) => (
                     <View key={day} style={styles.dosageRow}>
                       <Switch 
                         value={true} 
@@ -135,7 +147,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
                       <Text style={styles.dayText}>{day}</Text>
                       <TextInput 
                         style={styles.dosageInput}
-                        value={dosage[day]} 
+                        value={String(dosage)} 
                         onChangeText={(text) => handleDosageChange(day, text)} 
                         keyboardType="numeric"
                       />
