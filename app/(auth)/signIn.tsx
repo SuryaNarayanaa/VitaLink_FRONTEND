@@ -5,6 +5,7 @@ import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import {HeaderLogos} from '../../components/HeaderLogos'
 import useAuth, { LoginCredentials } from '@/hooks/api/auth/useAuth'
+import { AnimatedCard } from '@/components/animations/Animationedcard'
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -70,9 +71,9 @@ export default function SignIn() {
       <ScrollView contentContainerStyle={styles.formContainer}>
       <Text style={styles.title}>Sign in</Text>
       <Text style={styles.subtitle}>Sign in to your account</Text>
-      <View style={styles.loginBox}>
-        
+      <AnimatedCard>        
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        
         
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Username</Text>
@@ -112,7 +113,7 @@ export default function SignIn() {
             <Text style={styles.signUpLink}>Sign Up</Text>
           </TouchableOpacity>
         </View> */}
-      </View>
+      </AnimatedCard>
       </ScrollView>
       </View>
       

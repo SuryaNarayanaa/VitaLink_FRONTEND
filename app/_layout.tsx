@@ -6,12 +6,21 @@ import { useOnlineManager } from "@/hooks/query/useOnlineManager";
 import { useAppState } from "@/hooks/query/useAppState";
 import {QueryClient,QueryClientProvider,focusManager} from '@tanstack/react-query'
 import ErrorBoundary from "@/components/ErrorBoundary";
+import patchTextComponent from "@/components/ui/patch-text-component";
+import patchTextRender from "@/components/ui/patch-text-render";
 
 export default function RootLayout() {
   function onAppStateChange(status: AppStateStatus) {
     if (Platform.OS !== "web") {
       focusManager.setFocused(status === "active");
     }
+  }
+
+  try {
+    patchTextComponent()
+    patchTextRender()
+  } catch (error) {
+     console.log("failed to patch render the text compoent")
   }
 
   const queryclient = new QueryClient({defaultOptions:{queries:{retry:false}}})
