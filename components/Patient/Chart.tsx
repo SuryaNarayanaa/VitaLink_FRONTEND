@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import React, { useState, useRef } from 'react';
-import { BarChart, barDataItem } from "react-native-gifted-charts";
-import PagerView from 'react-native-pager-view';
-import Animated, { useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
+import { BarChart, barDataItem } from 'react-native-gifted-charts';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -50,10 +49,10 @@ const Popover: React.FC<PopoverProps> = ({ value, label, position, visible }) =>
 };
 
 const getChartDesign = (
-  initialBarData: barDataItem[], 
+  initialBarData: barDataItem[],
   onBarPress: (item: barDataItem, index: number) => void
 ): barDataItem[] => {
-  return initialBarData.map((item: barDataItem, index: number) => ({
+  return initialBarData.map((item, index) => ({
     ...item,
     frontColor: '#00bcd4',
     sideColor: '#008c9e',
@@ -91,12 +90,12 @@ const transformChartData = (data: Record<string, number>): barDataItem[] => {
 const Chart: React.FC<ChartProps> = ({ title, chartData }) => {
   const [selectedBar, setSelectedBar] = useState<PopoverProps | null>(null);
   const [hideData, setHideData] = useState(false);
-  const pagerRef = useRef<PagerView>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
 
   const initialBarData = hideData ? [] : transformChartData(chartData);
 
-  const chunkedData = [];
+  const chunkedData: barDataItem[][] = [];
   for (let i = 0; i < initialBarData.length; i += 3) {
     chunkedData.push(initialBarData.slice(i, i + 3));
   }
@@ -118,19 +117,24 @@ const Chart: React.FC<ChartProps> = ({ title, chartData }) => {
     });
   };
 
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const page = Math.round(event.nativeEvent.contentOffset.x / width);
+    setCurrentPage(page);
+  };
+
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={{ width: '100%', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setHideData(prev => !prev)}
-            style={{ 
-              width: 44, 
-              height: 20, 
-              borderWidth: 2, 
-              borderColor: '#17a3d6d5', 
-              backgroundColor: '#93c5f0', 
-              marginRight: 8, 
+            style={{
+              width: 44,
+              height: 20,
+              borderWidth: 2,
+              borderColor: '#17a3d6d5',
+              backgroundColor: '#93c5f0',
+              marginRight: 8,
               borderRadius: 4,
               position: 'relative',
               justifyContent: 'center',
@@ -138,7 +142,7 @@ const Chart: React.FC<ChartProps> = ({ title, chartData }) => {
             }}
           >
             {hideData && (
-              <View 
+              <View
                 style={{
                   position: 'absolute',
                   width: 2,
@@ -155,27 +159,37 @@ const Chart: React.FC<ChartProps> = ({ title, chartData }) => {
         {chunkedData.length === 0 ? (
           <Text style={{ marginTop: 40, color: '#aaa' }}>No data available</Text>
         ) : (
-          <PagerView
-            ref={pagerRef}
-            style={{ width: '100%', height: 250 }}
-            initialPage={0}
-            onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            ref={scrollRef}
+            style={{ width, height: 250 }}
           >
             {chunkedData.map((chunk, pageIndex) => (
-              <View key={pageIndex} style={{ flex: 1,alignItems:'center',marginTop:10 }}>
-                <View style={{ flex: 1, position: 'relative',alignItems:'flex-start' }}>
-                  <View style={{ alignItems: 'center', width: '100%' }}>
-                    <View style={{ width: '100%' }}>
-                       <BarChart   data={getChartDesign(chunk, handleBarPress)} frontColor="#93c5f0"  gradientColor="rgba(0, 188, 212, 0.2)" 
-                       noOfSections={4} initialSpacing={20} spacing={30} xAxisColor="#ccc" yAxisColor="#ccc" yAxisThickness={1} isAnimated
-                       animationDuration={1000} isThreeD={false}/>
-                    </View>
-                   </View>
+              <View key={pageIndex} style={{ width, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flex: 1, position: 'relative' }}>
+                  <BarChart
+                    data={getChartDesign(chunk, handleBarPress)}
+                    frontColor="#93c5f0"
+                    gradientColor="rgba(0, 188, 212, 0.2)"
+                    noOfSections={4}
+                    initialSpacing={20}
+                    spacing={30}
+                    xAxisColor="#ccc"
+                    yAxisColor="#ccc"
+                    yAxisThickness={1}
+                    isAnimated
+                    animationDuration={1000}
+                    isThreeD={false}
+                  />
                   {selectedBar && <Popover {...selectedBar} />}
                 </View>
               </View>
             ))}
-          </PagerView>
+          </ScrollView>
         )}
 
         {chunkedData.length > 1 && (

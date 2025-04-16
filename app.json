@@ -55,7 +55,16 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.2"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true
