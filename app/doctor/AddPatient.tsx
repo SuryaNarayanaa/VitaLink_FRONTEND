@@ -19,6 +19,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { patientSchema } from '@/constants/validator/PatientSchemaValidator';
 import { PatientCreateRequest } from '@/types/patient';
+import { showToast } from '@/components/ui/CustomToast';
 
 const initalData = {
   name: '',
@@ -127,6 +128,20 @@ const AddPatient = () => {
      onSuccess:() => {
       console.log("success")
         queryclient.invalidateQueries({queryKey:["doctorProfile"]})
+        showToast({
+          title: "Success",
+          message: "Patient added successfully",
+          type: "success",
+          duration: 3
+        });
+     },
+     onError: (error: any) => {
+       showToast({
+         title: "Error",
+         message: error?.response?.data?.detail || "Failed to add patient",
+         type: "error",
+         duration: 4
+       });
      }
   })
 
@@ -161,6 +176,12 @@ const AddPatient = () => {
     } catch (validationError:any) {
       console.log(validationError)
       setErrormessage(validationError.errors[0]);
+      showToast({
+        title: "Validation Error",
+        message: validationError.errors[0],
+        type: "warning",
+        duration: 4
+      });
     }
   };
 

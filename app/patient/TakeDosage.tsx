@@ -6,6 +6,7 @@ import {apiClient} from '@/hooks/api';
 import ConfirmModal from '@/components/Patient/ConfirmModel';
 import { useSafeState } from '@/hooks/useSafeState';
 import { Ionicons } from '@expo/vector-icons';
+import { showToast } from '@/components/ui/CustomToast';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -59,15 +60,36 @@ export default function TakeDosage() {
 
   const {mutateAsync:takeDosageMutate,error,isPending,isSuccess} = useMutation({
       mutationFn:async(date:string | null):Promise<void> => {
-        if(!date) {setErrorMessage("No dates chosen. Try again.");return;}
+        if(!date) {
+          setErrorMessage("No dates chosen. Try again.");
+          showToast({
+            title: "Error",
+            message: "Please select a date first",
+            type: "warning",
+            duration: 3
+          });
+          return;
+        }
         await apiClient.put(`/patient/take_dose`,{date})
       },
       onSuccess:() => {
           queryclient.invalidateQueries({queryKey:['profile']})
           queryclient.invalidateQueries({queryKey:["missed_doses"]})
+          showToast({
+            title: "Success",
+            message: "Dose marked as taken",
+            type: "success",
+            duration: 2
+          });
       },
-      onError:(error)=>{
+      onError:(error: any)=>{
         setErrorMessage(error?.message || "Failed to take dosage. Try again.");
+        showToast({
+          title: "Error",
+          message: error?.message || "Failed to mark dose as taken",
+          type: "error",
+          duration: 3
+        });
       }
   })
 

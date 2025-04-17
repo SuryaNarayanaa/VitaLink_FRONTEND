@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Doctor, Patient } from '@/types/doctor';
 import { useQueryClient,useMutation } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
+import { showToast } from '../ui/CustomToast';
 
 interface ReassignCaretakerModalProps {
   isOpen: boolean;
@@ -41,9 +42,20 @@ const ReassignCaretakerModal: React.FC<ReassignCaretakerModalProps> = ({
     onSuccess:() => {
       console.log("Success Send a Toast")
       queryclient.invalidateQueries({queryKey:["doctorProfile"]})
+      showToast({
+        title: "Success",
+        message: "The Caretaker has been reassigned Successfully",
+        type: "success",
+        duration: 2
+      });
     } ,
     onError:(err) => {
-       console.log("error",err)
+       showToast({
+        title: "Error",
+        message:"Failed to Reassign Caretaker",
+        type: "error",
+        duration: 3
+      });
     }
   })
   

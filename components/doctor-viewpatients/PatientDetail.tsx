@@ -18,6 +18,7 @@ import { DosageScheduleItem, PatientDashboardResponse } from '@/types/patient';
 import { Patient } from '@/types/doctor';
 import Chart from '../Patient/Chart';
 import { useDoctorContext } from '@/hooks/context/DoctorContext';
+import { showToast } from '../ui/CustomToast';
 
 interface PatientDetailProps {
   patient: Patient;
@@ -86,7 +87,22 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
         return response.data
      },
      onSuccess:() => { queryclient.invalidateQueries({queryKey:["patient"]});setDosage(dosage); 
-     setEditMode(false);   }
+     setEditMode(false);
+     showToast({
+       title: "Success",
+       message: "The Dosage has updated successfully",
+       type: "success",
+       duration: 2
+      }); 
+    },
+    onError:(err) => {
+      showToast({
+       title: "Error",
+       message:"Failed to Update Dosage",
+       type: "error",
+       duration: 3
+     });
+    }
   })
 
   const handleEditDosage = () => {

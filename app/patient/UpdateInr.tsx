@@ -1,15 +1,17 @@
-import { View, Text, Modal, Alert,Platform,Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Modal, Alert, Platform, Animated } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomButton from '@/components/ui/CustomButton';
 import InputField from '@/components/ui/CustomInput';
 import FileInputField from '@/components/ui/FileInputField';
-import { useState,useRef,useEffect } from 'react';
 import { usePatient } from '@/hooks/api';
-import { INRReport,fileProps } from '@/types/patient';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { INRReport, fileProps } from '@/types/patient';
 import { useSafeState } from '@/hooks/useSafeState';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/hooks/api/apiClient';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { showToast } from '@/components/ui/CustomToast';
 
 function isValidDate(dateString: string): boolean {
   const regex = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}:\d{2}))?$/;
@@ -55,24 +57,21 @@ function formatDate(date: Date): string {
 
 export default function UpdateInr() {
   const {updateINR} = usePatient()
-  const [form,setForm] = useSafeState({
-    inr_value : '',
-    location_of_test:'',
-    date:'',
+  const [form, setForm] = useSafeState({
+    inr_value: '',
+    location_of_test: '',
+    date: '',
   })
   const [selectedFile, setSelectedFile] = useSafeState<fileProps>({
-    uri:'',
-    name:'',
-    file:"",
-    mimeType:'',
+    uri: '',
+    name: '',
+    file: "",
+    mimeType: '',
   });
-  const [error,setError] = useSafeState<string | null>(null);
+  const [formError, setFormError] = useSafeState<string | null>(null);
   const [buttonStatus, setButtonStatus] = useSafeState<'default' | 'pending' | 'success' | 'error'>('default');
-
   const [showDatePicker, setShowDatePicker] = useSafeState(false);
-
-  const scaleAnim = useRef(new Animated.Value(1)).current
-
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   const queryclient = useQueryClient();
 
   useEffect(() => {
@@ -96,31 +95,64 @@ export default function UpdateInr() {
     if (buttonStatus === 'success' || buttonStatus === 'error') {
       const timer = setTimeout(() => {
         setButtonStatus('default');
-        setError(null);
+        setFormError(null);
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [buttonStatus]);
 
 
-  const {mutateAsync:mutateUpdateInr,isPending,isSuccess} = useMutation({
-    mutationFn:async(report:INRReport) => await updateINR(report),
-    onSuccess:()=>{setButtonStatus('success')
-      queryclient.invalidateQueries({queryKey:["profile"]})
+  const {mutate:updateInrMutate, isError, isPending, isSuccess} = useMutation({
+    mutationFn: async(report: INRReport) => {
+      if(!selectedFile.uri || !form.inr_value || !form.location_of_test || !form.date) {
+        throw new Error("Please fill all the required fields");
+      }
+      const formData = new FormData();
+      formData.append("inr_value", form.inr_value);
+      formData.append("location_of_test", form.location_of_test);
+      formData.append("date", form.date);
+      formData.append("file", selectedFile.file);
+      formData.append("file_name", selectedFile.name);
+      
+      const response = await apiClient.post("/patient/update-inr", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
     },
-    onError:()=>{setError("A  Error has occured while submitting The report Try Again");setButtonStatus('error');}
-  })
+    onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: ["profile"] });
+      setButtonStatus("success");
+      showToast({
+        title: "Success",
+        message: "INR report submitted successfully",
+        type: "success",
+        duration: 3
+      });
+      // Reset form
+      setForm({ inr_value: "", location_of_test: "", date: "" });
+      setSelectedFile({ uri: "", name: "", file: "", mimeType: "" });
+    },
+    onError: (error: any) => {
+      setButtonStatus("error");
+      showToast({
+        title: "Error",
+        message: error?.message || "Failed to submit INR report",
+        type: "error",
+        duration: 4
+      });
+    }
+  });
 
   const handleSubmit = async() => {
     const inrNumber = parseFloat(form.inr_value);
     if (isNaN(inrNumber)) {
-      setError("invalid Inr_value");
+      setFormError("invalid Inr_value");
       setButtonStatus('error');
       setForm({inr_value:'',location_of_test:'',date:''})
       return;
     }
-    if(form.location_of_test === '') {setError("Location field is empty");setButtonStatus('error');;return;}
-    if(!isValidDate(form.date)) {setError("The Provided Date is invalid");setButtonStatus('error');;return;}
+    if(form.location_of_test === '') {setFormError("Location field is empty");setButtonStatus('error');;return;}
+    if(!isValidDate(form.date)) {setFormError("The Provided Date is invalid");setButtonStatus('error');;return;}
     setButtonStatus('pending');
 
     const report = {
@@ -132,7 +164,7 @@ export default function UpdateInr() {
       file_path: selectedFile ? selectedFile.uri : '',
       type: selectedFile ? selectedFile.mimeType : '',
     };
-    await mutateUpdateInr(report)
+    await updateInrMutate(report)
   }
 
   const handleDateChange = (event: DateTimePickerEvent, selected?: Date) => {
@@ -149,9 +181,9 @@ export default function UpdateInr() {
   return (
     <ScrollView className='flex-1 p-2 font-primary'>
       <View className='bg-[#ffffff99] backdrop:blur-sm p-8 m-[15px] rounded-2xl'>
-        {error && (
+        {formError && (
           <View className='mt-2'>
-            <Text className="text-center text-red-600 mb-2 tracking-wider">{error}</Text>
+            <Text className="text-center text-red-600 mb-2 tracking-wider">{formError}</Text>
           </View>
         )}
         <InputField label='INR Value : ' 
