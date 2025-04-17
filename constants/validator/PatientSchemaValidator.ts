@@ -20,7 +20,6 @@ export const patientSchema = Yup.object({
   gender: Yup.string().required('Gender is required'),
   target_inr_min: Yup.string().trim().required('Target INR Min is required').matches(/^\d+(\.\d+)?$/, 'Target INR Min must be numeric'),
   target_inr_max: Yup.string().trim().required('Target INR Max is required').matches(/^\d+(\.\d+)?$/, 'Target INR Max must be numeric'),
-  doctor: Yup.string().required('Doctor is required'),
   caregiver: Yup.string().required('Caregiver is required'),
   therapy: Yup.string().trim().required('Therapy is required'),
   medical_history: Yup.array().of(

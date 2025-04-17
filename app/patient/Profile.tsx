@@ -118,7 +118,7 @@ const Profile = () => {
           </View>
         </View>
 
-        <Chart title='INR values' chartData={validChartData}/>
+        <Chart chartData={validChartData} title='INR values'/>
 
         <View className='mt-5'>
           <Text style={styles.sectionTitle}>MISSED DOSES:</Text>

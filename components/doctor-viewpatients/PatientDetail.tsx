@@ -17,6 +17,7 @@ import { apiClient } from '@/hooks/api';
 import { DosageScheduleItem, PatientDashboardResponse } from '@/types/patient';
 import { Patient } from '@/types/doctor';
 import Chart from '../Patient/Chart';
+import { useDoctorContext } from '@/hooks/context/DoctorContext';
 
 interface PatientDetailProps {
   patient: Patient;
@@ -52,6 +53,8 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
       return response.data;
     },
   })
+
+  const {doctorData} = useDoctorContext();
 
   const [dosage, setDosage] = useState<{ day: string; dosage: number }[]>([]);
 
@@ -257,7 +260,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <View style={styles.infoTable}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Doctor</Text>
-              <Text style={styles.infoValue}>{PatientData?.patient.doctor}</Text>
+              <Text style={styles.infoValue}>{doctorData?.user?.fullname}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Caregiver</Text>

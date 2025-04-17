@@ -71,7 +71,7 @@ export default function SignIn() {
       <ScrollView contentContainerStyle={styles.formContainer}>
       <Text style={styles.title}>Sign in</Text>
       <Text style={styles.subtitle}>Sign in to your account</Text>
-      <AnimatedCard>        
+      <View style={styles.loginBox}>        
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         
         
@@ -113,7 +113,7 @@ export default function SignIn() {
             <Text style={styles.signUpLink}>Sign Up</Text>
           </TouchableOpacity>
         </View> */}
-      </AnimatedCard>
+      </View>
       </ScrollView>
       </View>
       

@@ -21,7 +21,7 @@ export function AnimatedCard({ children, style }: AnimatedCardProps) {
     rotation.value = withRepeat(
       withTiming(360, {
         duration: 4000,
-        easing: Easing.bezier(0.3, 0.0, 0.1, 1.0), // Smooth easing
+        easing: Easing.bezier(0.3, 0.0, 0.1, 1.0), // Smooth easi
       }),
       -1,
       false
