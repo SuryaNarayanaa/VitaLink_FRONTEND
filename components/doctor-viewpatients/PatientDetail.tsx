@@ -16,13 +16,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { DosageScheduleItem, PatientDashboardResponse } from '@/types/patient';
 import { Patient } from '@/types/doctor';
-import Chart from '../Patient/Chart';
 import { useDoctorContext } from '@/hooks/context/DoctorContext';
 import { showToast } from '../ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 interface PatientDetailProps {
   patient: Patient;
   onBack: () => void;
+}
+
+interface DosageItem {
+  day: string;
+  dosage: number;
+  enabled: boolean;
 }
 
 const convertPrescriptionObjectToArray = (prescriptionArray: DosageScheduleItem[]): { day: string; dosage: number }[] => {
@@ -57,18 +63,28 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
 
   const {doctorData} = useDoctorContext();
 
-  const [dosage, setDosage] = useState<{ day: string; dosage: number }[]>([]);
+  const [dosage, setDosage] = useState<DosageItem[]>([]);
 
   useEffect(() => {
-    if (PatientData && PatientData.patient && PatientData.patient.dosage_schedule) {
-      const converted = convertPrescriptionObjectToArray(PatientData.patient.dosage_schedule);
-      setDosage(converted);
-      console.log("COnverted data:",converted)
+    if (PatientData?.patient?.dosage_schedule) {
+      const arr = convertPrescriptionObjectToArray(
+        PatientData.patient.dosage_schedule
+      );
+      setDosage(
+        arr.map(item => ({
+          ...item,
+          enabled: item.dosage > 0,
+        }))
+      );
     }
   }, [PatientData]);
 
   const toggleDay = (day: string, enabled: boolean) => {
-    console.log(`${day} is now ${enabled ? 'enabled' : 'disabled'}`);
+    setDosage(prev =>
+      prev.map(d =>
+        d.day === day ? {...d,enabled,} : d
+      )
+    );
   };
 
 
@@ -88,25 +104,22 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
      },
      onSuccess:() => { queryclient.invalidateQueries({queryKey:["patient"]});setDosage(dosage); 
      setEditMode(false);
-     showToast({
-       title: "Success",
-       message: "The Dosage has updated successfully",
-       type: "success",
-       duration: 2
+     Toast.show({
+        type:'success',
+        text1:'Dosage has been edited successfully'
       }); 
     },
     onError:(err) => {
-      showToast({
-       title: "Error",
-       message:"Failed to Update Dosage",
-       type: "error",
-       duration: 3
-     });
+      Toast.show({
+        type:'success',
+        text1:'Error while editing Dosage try again'
+      }); 
     }
   })
 
   const handleEditDosage = () => {
     if (editMode) {
+      console.log(dosage)
       changeDosage(dosage)
     }
     setEditMode(!editMode);
@@ -116,6 +129,13 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   ? PatientData.chart_data
   : {};
 
+  const missed = PatientData?.missed_doses || [];
+  const missedPages: string[][] = [];
+  for (let i = 0; i < missed.length; i += 5) {
+    missedPages.push(missed.slice(i, i + 5));
+  }
+
+
   const renderTabContent = () => {
     if (activeTab === 'inr') {
       return (
@@ -123,7 +143,6 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <ScrollView style={styles.tabScrollContent} contentContainerStyle={styles.scrollContentContainer}>
             <View style={styles.section}>
               <View className='mt-5'>
-                 <Chart  title={`INR values for ${patient.name}`}  chartData={validChartData} />
               </View>
             </View>
             
@@ -156,27 +175,32 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
                   </ScrollView>
                 </View>
               ) : (
-                <ScrollView style={styles.editDosageContainer} nestedScrollEnabled={true}>
-                  {( dosage || {}).map(({day,dosage},index) => (
-                    <View key={day} style={styles.dosageRow}>
-                      <Switch 
-                        value={true} 
-                        onValueChange={(checked) => toggleDay(day, checked)}
-                      />
-                      <Text style={styles.dayText}>{day}</Text>
-                      <TextInput 
-                        style={styles.dosageInput}
-                        value={String(dosage)} 
-                        onChangeText={(text) => handleDosageChange(day, text)} 
-                        keyboardType="numeric"
-                      />
-                      <Text>mg</Text>
+                <View style={styles.editDosageContainer}>
+                  {dosage.map(({ day, dosage: doseValue, enabled }, idx) => ( 
+                    <View key={day} className='flex flex-row items-center justify-between mt-3 px-5'>
+                      <View className='flex flex-row justify-center items-center gap-x-3'>
+                        <Switch value={enabled}
+                        onValueChange={v => toggleDay(day, v)}
+                        trackColor={{ false: '#E8E8E8', true: '#2196F3' }}
+                        thumbColor="#fff"/>
+                        <Text style={styles.dayText}>{day}</Text>
+                      </View>
+                      <View className='flex flex-row justify-center items-center gap-x-3'>
+                        <TextInput style={[ styles.dosageInput,!enabled && styles.disabledInput ]} 
+                        value={String(doseValue)} 
+                        onChangeText={text => handleDosageChange(day, text)} 
+                        keyboardType="numeric" editable={enabled}/>
+                        <Text>mg</Text>
+                      </View>
                     </View>
                   ))}
-                </ScrollView>
+                </View>
               )}
               
-              <TouchableOpacity 
+              
+            </View>
+            
+            <TouchableOpacity 
                 style={styles.button}
                 onPress={handleEditDosage}
               >
@@ -184,9 +208,6 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
                   {editMode ? "Save Dosage" : "Edit Dosage"}
                 </Text>
               </TouchableOpacity>
-            </View>
-            
-            {/* Add extra padding at the bottom to ensure scrollability */}
             <View style={styles.bottomPadding} />
           </ScrollView>
         </ScrollView>
@@ -276,11 +297,11 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           <View style={styles.infoTable}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Doctor</Text>
-              <Text style={styles.infoValue}>{doctorData?.user?.fullname}</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient?.doctorName}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Caregiver</Text>
-              <Text style={styles.infoValue}>{PatientData?.patient?.caretaker}</Text>
+              <Text style={styles.infoValue}>{`${PatientData?.patient?.caretakerName || ''} `}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Therapy</Text>
@@ -522,11 +543,11 @@ scrollContent: {
   },
   editDosageContainer: {
     marginVertical: 8,
-    maxHeight: 200,
   },
   dosageRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent:'space-between',
     marginVertical: 8,
   },
   dayText: {
@@ -578,6 +599,10 @@ scrollContent: {
   },
   bottomPadding: {
     height: 10, // Increased bottom padding for better scrolling
+  },
+  disabledInput: {
+    backgroundColor: '#f0f0f0',
+    color: '#999',
   },
 });
 

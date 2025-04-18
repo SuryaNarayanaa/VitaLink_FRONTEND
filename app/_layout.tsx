@@ -8,6 +8,7 @@ import {QueryClient,QueryClientProvider,focusManager} from '@tanstack/react-quer
 import ErrorBoundary from "@/components/ErrorBoundary";
 import patchTextComponent from "@/components/ui/patch-text-component";
 import patchTextRender from "@/components/ui/patch-text-render";
+import Toast from 'react-native-toast-message';
 
 export default function RootLayout() {
   function onAppStateChange(status: AppStateStatus) {
@@ -34,6 +35,7 @@ export default function RootLayout() {
         <ErrorBoundary>
           <Stack screenOptions={{headerTitleAlign:'center', headerShown:false}}>
           </Stack>
+          <Toast/>
           </ErrorBoundary>
       </SafeAreaView>
     </SafeAreaProvider>

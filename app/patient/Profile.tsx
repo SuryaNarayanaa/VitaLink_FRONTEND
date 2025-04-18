@@ -6,8 +6,6 @@ import { usePatientContext } from '@/hooks/context/PatientContext'
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { ReportFormResponse } from '@/types/patient';
-import Chart from '@/components/Patient/Chart';
-import {Link} from 'expo-router'
 
 export const formatDateTime = (isoString: string) => {
   const date = new Date(isoString);
@@ -91,8 +89,8 @@ const Profile = () => {
 
         <View style={styles.table}>
           <Table borderStyle={{ borderWidth: 1, borderColor: '#000' }}>
-            <Row data={['Doctor', patient.doctor]} style={styles.tableRow} textStyle={styles.tableText} />
-            <Row data={['Caregiver', patient.kin_name]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Doctor', `${patient.doctorName}`]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Caregiver', `${patient.caretakerName}`]} style={styles.tableRow} textStyle={styles.tableText} />
             <Row data={['Therapy', patient.therapy]} style={styles.tableRow} textStyle={styles.tableText} />
             <Row data={['Therapy Start Date', patient.therapy_start_date]} style={styles.tableRow} textStyle={styles.tableText} />
           </Table>
@@ -117,8 +115,6 @@ const Profile = () => {
           )}
           </View>
         </View>
-
-        <Chart chartData={validChartData} title='INR values'/>
 
         <View className='mt-5'>
           <Text style={styles.sectionTitle}>MISSED DOSES:</Text>

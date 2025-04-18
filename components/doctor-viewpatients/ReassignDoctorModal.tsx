@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { showToast } from '../ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 interface ReassignDoctorModalProps {
   isOpen: boolean;
@@ -33,20 +34,16 @@ const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({
     onSuccess:() => {
       console.log("Success Send a Toast")
       queryclient.invalidateQueries({queryKey:["doctorProfile"]})
-      showToast({
-        title: "Success",
-        message: "The Doctor has been reassigned Successfully",
-        type: "success",
-        duration: 2
-      });
+      Toast.show({
+        type:'success',
+        text1:'The Doctor has been reassigned successfully'
+      })
     } ,
     onError:(err) => {
-      showToast({
-       title: "Error",
-       message:"Failed to Reassign Doctor",
-       type: "error",
-       duration: 3
-      });
+      Toast.show({
+        type:'success',
+        text1:'Failed to reassig Doctor.Try Again...'
+      })
     }
   })
 

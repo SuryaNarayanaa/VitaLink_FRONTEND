@@ -27,17 +27,32 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
 
   // Search and sort patients
   const filteredPatients = patients
-  .filter(patient => 
-    (patient.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (patient.doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (patient.caretakerName?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  ).sort((a, b) => {
-      if (sortDirection === 'asc') {
-        return a[sortField] > b[sortField] ? 1 : -1;
-      } else {
-        return a[sortField] < b[sortField] ? 1 : -1;
-      }
-    });
+  .filter((patient) => {
+    const name = patient.name?.toLowerCase() || '';
+    const doctor = patient.doctor?.toLowerCase() || '';
+    const caretaker = patient.caretakerName?.toLowerCase() || '';
+    const term = searchTerm.toLowerCase();
+
+    return name.includes(term) || doctor.includes(term) || caretaker.includes(term);
+  })
+  .sort((a, b) => {
+    const aValue = a[sortField as keyof typeof a];
+    const bValue = b[sortField as keyof typeof b];
+
+    if (aValue == null || bValue == null) return 0;
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+
+    return 0; // default fallback if types don’t match
+  });
 
   // Calculate pagination
   const indexOfLastEntry = currentPage * entriesPerPage;
@@ -158,7 +173,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
                 <Text>{patient.gender}</Text>
               </View>
               <View style={styles.cell}>
-                <Text>{patient.doctor}</Text>
+                <Text>{patient.doctorName}</Text>
               </View>
               <View style={styles.cell}>
                 <Text>{patient.caretakerName}</Text>

@@ -28,6 +28,8 @@ export interface Patient{
   prolongedillness:string,
   role: string;
   exp: number;
+  caretakerName?: string | null,
+  doctorName : string
 }
 
 export interface DosageScheduleItem {

@@ -16,6 +16,7 @@ import { Doctor, Patient } from '@/types/doctor';
 import { useQueryClient,useMutation } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import { showToast } from '../ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 interface ReassignCaretakerModalProps {
   isOpen: boolean;
@@ -42,20 +43,16 @@ const ReassignCaretakerModal: React.FC<ReassignCaretakerModalProps> = ({
     onSuccess:() => {
       console.log("Success Send a Toast")
       queryclient.invalidateQueries({queryKey:["doctorProfile"]})
-      showToast({
-        title: "Success",
-        message: "The Caretaker has been reassigned Successfully",
+      Toast.show({
+        text1: "The Caretaker has been reassigned Successfully",
         type: "success",
-        duration: 2
       });
     } ,
     onError:(err) => {
-       showToast({
-        title: "Error",
-        message:"Failed to Reassign Caretaker",
-        type: "error",
-        duration: 3
-      });
+      Toast.show({
+        type:'error',
+        text1:'Failed to reassign caretaker. Try Again...'
+      })
     }
   })
   

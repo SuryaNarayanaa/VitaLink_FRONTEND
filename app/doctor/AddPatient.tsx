@@ -20,6 +20,7 @@ import { apiClient } from '@/hooks/api';
 import { patientSchema } from '@/constants/validator/PatientSchemaValidator';
 import { PatientCreateRequest } from '@/types/patient';
 import { showToast } from '@/components/ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 const initalData = {
   name: '',
@@ -128,20 +129,16 @@ const AddPatient = () => {
      onSuccess:() => {
       console.log("success")
         queryclient.invalidateQueries({queryKey:["doctorProfile"]})
-        showToast({
-          title: "Success",
-          message: "Patient added successfully",
-          type: "success",
-          duration: 3
-        });
+        Toast.show({
+          type:'success',
+          text1:'Patient added successfully'
+        })
      },
      onError: (error: any) => {
-       showToast({
-         title: "Error",
-         message: error?.response?.data?.detail || "Failed to add patient",
-         type: "error",
-         duration: 4
-       });
+       Toast.show({
+         type:'error',
+         text1:'Failed to add patient.Try again...'
+       })
      }
   })
 
@@ -171,17 +168,16 @@ const AddPatient = () => {
         kin_name: patientData.kin_name,
         kin_contact: `+91${patientData.kin_contact}`,
       };
+      console.log(refinedData)
       addPatient(refinedData)
       setPatientData(initalData)
     } catch (validationError:any) {
       console.log(validationError)
       setErrormessage(validationError.errors[0]);
-      showToast({
-        title: "Validation Error",
-        message: validationError.errors[0],
-        type: "warning",
-        duration: 4
-      });
+      Toast.show({
+        type:'error',
+        text1:`${validationError.errors[0]}. Try fixing it`
+      })
     }
   };
 
@@ -413,7 +409,7 @@ const AddPatient = () => {
                     <Switch
                       value={
                         patientData.dosage_schedule[day as keyof typeof patientData.dosage_schedule].enabled
-                      }
+                      } 
                       onValueChange={(value) =>
                         handledosage_scheduleChange(day, 'enabled', value)
                       }

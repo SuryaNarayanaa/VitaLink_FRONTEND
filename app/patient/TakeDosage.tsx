@@ -7,6 +7,7 @@ import ConfirmModal from '@/components/Patient/ConfirmModel';
 import { useSafeState } from '@/hooks/useSafeState';
 import { Ionicons } from '@expo/vector-icons';
 import { showToast } from '@/components/ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -62,11 +63,9 @@ export default function TakeDosage() {
       mutationFn:async(date:string | null):Promise<void> => {
         if(!date) {
           setErrorMessage("No dates chosen. Try again.");
-          showToast({
-            title: "Error",
-            message: "Please select a date first",
-            type: "warning",
-            duration: 3
+          Toast.show({
+            text1: "Please select a date first",
+            type: "error",
           });
           return;
         }
@@ -75,20 +74,16 @@ export default function TakeDosage() {
       onSuccess:() => {
           queryclient.invalidateQueries({queryKey:['profile']})
           queryclient.invalidateQueries({queryKey:["missed_doses"]})
-          showToast({
-            title: "Success",
-            message: "Dose marked as taken",
+          Toast.show({
+            text1: "Dose marked as taken",
             type: "success",
-            duration: 2
           });
       },
       onError:(error: any)=>{
         setErrorMessage(error?.message || "Failed to take dosage. Try again.");
-        showToast({
-          title: "Error",
-          message: error?.message || "Failed to mark dose as taken",
+        Toast.show({
+          text1: "Failed to take dosage. Try again.",
           type: "error",
-          duration: 3
         });
       }
   })

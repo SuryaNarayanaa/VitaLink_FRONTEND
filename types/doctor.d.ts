@@ -50,5 +50,6 @@ export interface Patient {
   age: number;
   gender: string;
   doctor: string;
-  caretakerName: string;
+  caretakerName?: string | null;
+  doctorName :string;
 }

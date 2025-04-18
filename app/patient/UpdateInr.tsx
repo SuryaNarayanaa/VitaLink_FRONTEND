@@ -12,6 +12,7 @@ import apiClient from '@/hooks/api/apiClient';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { showToast } from '@/components/ui/CustomToast';
+import Toast from 'react-native-toast-message';
 
 function isValidDate(dateString: string): boolean {
   const regex = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}:\d{2}))?$/;
@@ -105,7 +106,10 @@ export default function UpdateInr() {
   const {mutate:updateInrMutate, isError, isPending, isSuccess} = useMutation({
     mutationFn: async(report: INRReport) => {
       if(!selectedFile.uri || !form.inr_value || !form.location_of_test || !form.date) {
-        throw new Error("Please fill all the required fields");
+        Toast.show({
+           type:'error',
+           text1:'All the fields are required'
+        })
       }
       const formData = new FormData();
       formData.append("inr_value", form.inr_value);
@@ -122,24 +126,20 @@ export default function UpdateInr() {
     onSuccess: () => {
       queryclient.invalidateQueries({ queryKey: ["profile"] });
       setButtonStatus("success");
-      showToast({
-        title: "Success",
-        message: "INR report submitted successfully",
-        type: "success",
-        duration: 3
-      });
+      Toast.show({
+        type:'success',
+        text1:"INR report has been submitted successfully"
+      })
       // Reset form
       setForm({ inr_value: "", location_of_test: "", date: "" });
       setSelectedFile({ uri: "", name: "", file: "", mimeType: "" });
     },
     onError: (error: any) => {
       setButtonStatus("error");
-      showToast({
-        title: "Error",
-        message: error?.message || "Failed to submit INR report",
-        type: "error",
-        duration: 4
-      });
+      Toast.show({
+        type:'error',
+        text1:'failed to submit The INR report.Try again...'
+      })
     }
   });
 
