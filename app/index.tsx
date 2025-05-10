@@ -10,10 +10,8 @@ export default function Index() {
         const redirect = async () => {
           try{
             const token = await SecureStore.getItemAsync('access_token');
-            const userRole = await SecureStore.getItemAsync('userRole');
             if(token){
-              if(userRole === 'doctor') router.replace('/doctor')
-              else if(userRole === 'patient') router.replace('/patient/Profile')
+              router.replace('/home')
             }
           }catch(error){
               Alert.alert("Error during Initialing The user")

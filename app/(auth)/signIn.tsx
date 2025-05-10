@@ -14,15 +14,12 @@ export default function SignIn() {
   });
   const { login, isLoading, error } = useAuth();
 
-
   useEffect(() => {
       const redirect = async () => {
         try{
           const token = await SecureStore.getItemAsync('access_token');
-          const userRole = await SecureStore.getItemAsync('userRole');
           if(token){
-            if(userRole === 'doctor') router.replace('/doctor')
-            else if(userRole === 'patient') router.replace('/patient/Profile')
+            router.replace('/home')
           }
         }catch(error){
             Alert.alert("Error during Initialing The user")
@@ -30,7 +27,6 @@ export default function SignIn() {
       }
       redirect()
   },[])
-
   const handleSignIn = async () => {
     if (!credentials.username || !credentials.password) {
       return;
@@ -41,14 +37,12 @@ export default function SignIn() {
     try {
       const response = await login(credentials);
       if (response && response.role) {
-        switch(response.role) {
-        case 'doctor':
-          router.replace('/doctor');
-          break;
-        case 'patient':
-          router.replace('/patient/Profile');
-          break;
+        // Store the user's name in SecureStore for displaying on the home screen
+        if (response.fullname) {
+          await SecureStore.setItemAsync('userName', response.fullname);
         }
+        // Redirect to the home screen instead of directly to role-specific pages
+        router.replace('/home');
       } else {
         console.error('Login failed - missing role information');
         setCredentials({ username: '', password: '' });
