@@ -15,20 +15,26 @@ const dosageSchema = Yup.object({
 });
 
 export const patientSchema = Yup.object({
-  name: Yup.string().trim().required('Name is required'),
-  age: Yup.string().trim().required('Age is required').matches(/^\d+$/, 'Age must be numeric'),
-  gender: Yup.string().required('Gender is required'),
-  target_inr_min: Yup.string().trim().required('Target INR Min is required').matches(/^\d+(\.\d+)?$/, 'Target INR Min must be numeric'),
-  target_inr_max: Yup.string().trim().required('Target INR Max is required').matches(/^\d+(\.\d+)?$/, 'Target INR Max must be numeric'),
-  caregiver: Yup.string().required('Caregiver is required'),
-  therapy: Yup.string().trim().required('Therapy is required'),
-  medical_history: Yup.array().of(
+  name: Yup.string().trim().required('Patient name is required'),
+  age: Yup.string().trim().required('Patient age is required').matches(/^\d+$/, 'Age must be numeric'),
+  gender: Yup.string().required('Gender selection is required'),
+  target_inr_min: Yup.string().trim().required('Target INR Min value is required').matches(/^\d+(\.\d+)?$/, 'Target INR Min must be numeric'),
+  target_inr_max: Yup.string().trim().required('Target INR Max value is required').matches(/^\d+(\.\d+)?$/, 'Target INR Max must be numeric'),
+  // Caregiver is optional
+  therapy: Yup.string().trim(),
+  medical_history: Yup.array().nullable().transform((value) => (!value ? [] : value)).of(
     Yup.object({
-      diagnosis: Yup.string().trim().required('Diagnosis is required'),
-      duration: Yup.string().trim().required('Duration is required').matches(/^\d+(\.\d+)?$/, 'Duration must be numeric'),
-      durationUnit: Yup.string().oneOf(['Days', 'Weeks', 'Months', 'Years'], 'Invalid duration unit').required('Duration unit is required'),
+      diagnosis: Yup.string().trim().nullable(),
+      duration: Yup.string().trim().nullable()
+        .transform((value) => (!value ? null : value))
+        .test('duration', 'Duration must be numeric', (value) => {
+          if (!value) return true;
+          return /^\d+(\.\d+)?$/.test(value);
+        }),
+      durationUnit: Yup.string().nullable()
+        .oneOf(['Days', 'Weeks', 'Months', 'Years'], 'Invalid duration unit'),
     })
-  ).min(1, 'At least one medical history entry is required'),
+  ),
   therapy_start_date: Yup.string().trim().required('Therapy start date is required').matches(/^\d{2}-\d{2}-\d{4}$/, 'Therapy start date must be in dd-mm-yyyy format'),
   dosage_schedule: Yup.object({
     mon: dosageSchema,
@@ -38,8 +44,8 @@ export const patientSchema = Yup.object({
     fri: dosageSchema,
     sat: dosageSchema,
     sun: dosageSchema,
-  }).required('Dosage schedule is required'),
-  contact: Yup.string().trim().required('Contact is required').matches(/^\d+$/, 'Contact must contain only digits'),
-  kin_name: Yup.string().trim().required('Kin name is required'),
-  kin_contact: Yup.string().trim().required('Kin contact is required').matches(/^\d+$/, 'Kin contact must contain only digits'),
+  }).required('At least one day must be selected for dosage schedule'),
+  contact: Yup.string().trim().required('Patient contact number is required').matches(/^\d{10}$/, 'Contact must be a 10-digit number'),
+  kin_name: Yup.string().trim().required('kin name is required'),
+  kin_contact: Yup.string().trim().required('kin contact is required').matches(/^\d{10}$/, 'Kin contact must be a 10-digit number'),
 });

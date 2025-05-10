@@ -35,7 +35,7 @@ const MutltiLinetextInput:React.FC<TextInputProps> = ({label,text,setText,handle
               numberOfLines={4}
               value={text}
               onChangeText={(value) => setText(value)}
-              placeholder="List the names of other medications you are taking"
+              placeholder=""
             />
             
 
