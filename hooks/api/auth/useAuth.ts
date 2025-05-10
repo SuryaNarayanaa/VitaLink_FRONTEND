@@ -11,7 +11,8 @@ export interface LoginResponse {
   message: string;
   role: 'admin' | 'doctor' | 'patient';
   access_token: string;
-  refresh_token : string;
+  refresh_token: string;
+  fullname?: string;
 }
 
 const useAuth = () => {
