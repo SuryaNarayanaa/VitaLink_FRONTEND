@@ -40,7 +40,6 @@ const Patients = () => {
   })
   
   if (selectedPatient) {
-    console.log(selectedPatient)
     return <PatientDetail patient={selectedPatient} onBack={handleBackToList} />;
   }
   

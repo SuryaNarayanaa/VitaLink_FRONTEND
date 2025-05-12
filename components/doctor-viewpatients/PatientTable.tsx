@@ -80,18 +80,6 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <Text style={styles.entriesLabel}>Entries per page:</Text>
-        <TouchableOpacity 
-          style={styles.entriesSelector}
-          onPress={() => {
-            // In a real app, this would open a picker
-            setEntriesPerPage(entriesPerPage === 5 ? 10 : 5);
-            setCurrentPage(1);
-          }}
-        >
-          <Text>{entriesPerPage}</Text>
-        </TouchableOpacity>
-        
         <View style={styles.searchWrapper}>
           <Text style={styles.searchLabel}>Search:</Text>
           <TextInput
@@ -106,8 +94,8 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
         </View>
       </View>
       
-      <ScrollView horizontal>
-        <View>
+      <ScrollView horizontal={true} contentContainerStyle={{flexGrow : 1}}>
+        <ScrollView contentContainerStyle={{flexGrow:1}}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <TouchableOpacity 
@@ -185,7 +173,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, onViewPatient }) 
               </View>
             </View>
           ))}
-        </View>
+        </ScrollView>
       </ScrollView>
       
       <View style={styles.paginationInfo}>

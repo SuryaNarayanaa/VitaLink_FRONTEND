@@ -41,7 +41,6 @@ const ReassignCaretakerModal: React.FC<ReassignCaretakerModalProps> = ({
       return response.data
     },
     onSuccess:() => {
-      console.log("Success Send a Toast")
       queryclient.invalidateQueries({queryKey:["doctorProfile"]})
       Toast.show({
         text1: "The Caretaker has been reassigned Successfully",

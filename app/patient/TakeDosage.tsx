@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView,Dimensions } from 'react-native';
 import { usePatientContext } from '@/hooks/context/PatientContext';
 import { useMutation,useQuery,useQueryClient } from '@tanstack/react-query';
 import {apiClient} from '@/hooks/api';
 import ConfirmModal from '@/components/Patient/ConfirmModel';
 import { useSafeState } from '@/hooks/useSafeState';
 import { Ionicons } from '@expo/vector-icons';
-import { showToast } from '@/components/ui/CustomToast';
 import Toast from 'react-native-toast-message';
 
 const ITEMS_PER_PAGE = 8;
@@ -21,6 +20,8 @@ const extractRecentMissedDoses = (doses: string[]) => {
   const remaining = doses.slice(7);
   return { recent, remaining };
 };
+
+const screenHeight = Dimensions.get("window").height
 
 export default function TakeDosage() {
   const queryclient = useQueryClient()
@@ -88,19 +89,20 @@ export default function TakeDosage() {
       }
   })
 
+
   return (
     <ScrollView className='flex-1 p-2 font-primary'>
-      <View className='bg-[#ffffff99] backdrop:blur-sm p-8 m-[15px] rounded-2xl'>
+      <View className='bg-[#ffffff99] backdrop:blur-sm  m-[15px] rounded-2xl' style={{padding : screenHeight < 725 ? 20 : 32}}>
         <Text className='text-[#333] text-xl mb-2 font-primary font-bold'>Missed Doses</Text>
         <Text className='text-[16px] text-[#666] mb-5'>
           Below are the missed doses for the last 7 days. Click on the date to mark it as taken.
         </Text>
 
-        <View className='flex flex-row flex-wrap gap-3'>
+        <View className='flex flex-row flex-wrap gap-3 justify-between'>
           {recentMissedDoses.map((date) => (
             <TouchableOpacity
               key={date}
-              className={`p-[10px] rounded-lg  min-w-20 items-center ${takenDate === date ? 'bg-[#4CAF50]' : 'bg-[#ffffffe8]'}`}
+              className={`${ screenHeight < 700 && 'w-[47%]' } p-[10px] rounded-lg  min-w-20 items-center ${takenDate === date ? 'bg-[#4CAF50]' : 'bg-[#ffffffe8]'}`}
               onPress={() => {handleDatePress(date);}}
             >
               <Text style={[styles.dateText, takenDate === date && styles.takenDateText]}>
@@ -112,10 +114,10 @@ export default function TakeDosage() {
 
         <View className='mt-5'>
           <Text className='mb-[10px] text-[#333] text-xl font-primary font-bold'>Remaining Missed Doses</Text>
-          <View className='flex flex-row flex-wrap items-center gap-3 justify-around'>
+          <View className='flex flex-row flex-wrap items-center gap-3 justify-between'>
             {getPaginatedData().map((dose, index) => (
               <View key={index} style={styles.missedDoseItem}>
-                <Ionicons name="alert-circle-outline" size={24} color="#FF5252" />
+                <Ionicons name="alert-circle-outline" size={20} color="#FF5252" />
                 <Text style={styles.missedDoseMedication}>{dose}</Text>
               </View>
             ))}
@@ -152,11 +154,11 @@ export default function TakeDosage() {
 }
 
 const styles = StyleSheet.create({
-  dateText: { fontSize: 14, color: '#333', fontWeight: '500' },
+  dateText: { fontSize: 16, color: '#333', fontWeight: '500' },
   takenDateText: { color: '#fff' },
   missedDoseItem: {
     backgroundColor: '#f8f9fa',
-    padding: 15,
+    padding: screenHeight < 700 ? 10 : 15,
     borderRadius: 10,
     marginBottom: 5,
     borderLeftWidth: 4,
@@ -164,11 +166,11 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     gap:10,
-    width: '45%',
+    width: '47%',
   },
   paginationButton: { backgroundColor: '#007BFF', padding: 10, borderRadius: 8 },
   disabledButton: { backgroundColor: '#A9CCE3' },
-  paginationButtonText: { color: '#fff', fontWeight: 'bold' },
+  paginationButtonText: { color: '#fff', fontWeight: 'bold',minWidth:50,textAlign:'center' },
   paginationInfo: { fontSize: 16, color: '#333' },
   missedDoseMedication: {
     fontSize: 15,

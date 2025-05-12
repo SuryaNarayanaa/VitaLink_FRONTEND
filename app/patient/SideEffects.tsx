@@ -55,8 +55,6 @@ const SideEffects = () => {
   const data = queryclient.getQueryData<ReportFormResponse>(['reports']);
   const reportData: ReportFormResponse | null = data ?? null;
   
-  console.log(reportData);
-
   useEffect(() => {
     if(reportData && typeof reportData.sideEffects === 'string'){
         const {checked,other} = SplitSideEffects(reportData.sideEffects,sideEffects)

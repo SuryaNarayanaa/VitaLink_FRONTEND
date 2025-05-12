@@ -8,8 +8,6 @@ import { useDoctorContext } from './DoctorContext';
 
 const DoctorNavigator = () => {
   const {doctorData} = useDoctorContext()
-  console.log(doctorData?.user.fullname)
-  console.log(doctorData?.user.occupation)  
   return (
     <Drawer
           backBehavior="initialRoute"

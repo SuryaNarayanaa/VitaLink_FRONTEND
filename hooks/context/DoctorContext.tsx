@@ -49,8 +49,6 @@ export const DoctorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     enabled: userRole === 'doctor',
   });
 
-  console.log('Doctor Data:', doctorData);
-
   const errorMessage = error instanceof Error ? error.message : null;
 
   if (isCheckingRole || isLoading) {

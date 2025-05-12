@@ -27,7 +27,6 @@ const mapExtensionsToMime = (extensions: string[]): string[] => {
   };
 
 const b64toBlob = (b64Data: string, contentType = ''): Blob => {
-  console.log("here")
   const cleanedBase64 = b64Data.includes(',') ? b64Data.split(',')[1] : b64Data;
   const byteArray = Buffer.from(cleanedBase64, 'base64');
   console.log("byte Array",byteArray)

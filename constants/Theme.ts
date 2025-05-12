@@ -5,7 +5,9 @@ const COLORS = {
     warning_color: "#FE6100",
     info_color: "#FFB000",
     background_primary: "#ffffff99",
-    background_missed_doses: 'lightblue'
+    background_missed_doses: 'lightblue',
+  gray: '#bdc3c7', // Added gray color
+
 }
 
 const FONT_FAMILY = {

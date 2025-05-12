@@ -1,5 +1,5 @@
 import { View, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-const psgLogo = require('../assets/images/right-logo.png')
+const psgLogo = require('../assets/images/psg_logo_2.jpg')
 const psgIMSLogo = require('../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png')
 
 

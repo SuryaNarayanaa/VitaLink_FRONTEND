@@ -9,6 +9,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import patchTextComponent from "@/components/ui/patch-text-component";
 import patchTextRender from "@/components/ui/patch-text-render";
 import Toast from 'react-native-toast-message';
+import {StatusBar} from 'expo-status-bar'
 
 export default function RootLayout() {
   function onAppStateChange(status: AppStateStatus) {
@@ -36,7 +37,8 @@ export default function RootLayout() {
           <Stack screenOptions={{headerTitleAlign:'center', headerShown:false}}>
           </Stack>
           <Toast/>
-          </ErrorBoundary>
+          <StatusBar style="auto"/>
+        </ErrorBoundary>
       </SafeAreaView>
     </SafeAreaProvider>
     </QueryClientProvider>

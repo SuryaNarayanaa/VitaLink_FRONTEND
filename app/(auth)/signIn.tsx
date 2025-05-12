@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store'
 import {HeaderLogos} from '../../components/HeaderLogos'
 import useAuth, { LoginCredentials } from '@/hooks/api/auth/useAuth'
 import { AnimatedCard } from '@/components/animations/Animationedcard'
+import { Ionicons } from '@expo/vector-icons';
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -13,6 +14,7 @@ export default function SignIn() {
     password: '',
   });
   const { login, isLoading, error } = useAuth();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
       const redirect = async () => {
@@ -37,11 +39,6 @@ export default function SignIn() {
     try {
       const response = await login(credentials);
       if (response && response.role) {
-        // Store the user's name in SecureStore for displaying on the home screen
-        if (response.fullname) {
-          await SecureStore.setItemAsync('userName', response.fullname);
-        }
-        // Redirect to the home screen instead of directly to role-specific pages
         router.replace('/home');
       } else {
         console.error('Login failed - missing role information');
@@ -82,13 +79,23 @@ export default function SignIn() {
         
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={credentials.password}
-            onChangeText={(text) => setCredentials({...credentials, password: text})}
-            secureTextEntry
-          />
+          <View style={styles.passwordWrapper}>
+            <TextInput
+              style={{  ...styles.input, flex: 1 , borderWidth: 0 }}
+            
+              placeholder="Enter your password"
+              value={credentials.password}
+              onChangeText={(text) => setCredentials({ ...credentials, password: text })}
+              secureTextEntry={!isPasswordVisible}
+            />
+            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} className='px-4'>
+              <Ionicons
+                name={isPasswordVisible ? 'eye' : 'eye-off'}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <TouchableOpacity 
@@ -177,8 +184,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    
+    backgroundColor: '#f9f9f9',
+  },
   forgotContainer: {
     alignItems: 'flex-end',
+    paddingRight: 24,
     marginBottom: 24,
   },
   forgotText: {
@@ -219,4 +237,4 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-});   
+});

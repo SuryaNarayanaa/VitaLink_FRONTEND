@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   View,
-  Text,
+  Text,Dimensions,
   StyleSheet,
   Alert,
 } from 'react-native';
@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/api';
 import { Ionicons } from '@expo/vector-icons';
 import {router} from 'expo-router'
-import { HeaderLogos } from './HeaderLogos';
 
 
 export const CustomDrawerLabel = ({ iconName, label }: { iconName: keyof typeof Ionicons.glyphMap; label: string }) => (
@@ -51,13 +50,18 @@ export default function CustomDrawer(props: CutsomDrawerProps) {
   };
 
   const { top, bottom } = useSafeAreaInsets();
+  const screenHeight = Dimensions.get("window").height
+
   
   return (
-    <View className='flex-1 flex-col justify-around h-full rounded-none mt-32' style={{ paddingBottom: bottom }}>
+    <View className='flex-1 flex-col justify-around h-full rounded-none' 
+    style={{ paddingBottom: bottom,
+      marginTop: screenHeight < 650 ? 5 : screenHeight < 750 ? 50 : 100
+     }}>
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={{ paddingTop: top }}
-        scrollEnabled={false}
+        scrollEnabled={true}
       >
         <DrawerItemList {...props} />
         <DrawerItem

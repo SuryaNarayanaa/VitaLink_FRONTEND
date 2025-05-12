@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
-import { View, Text, StyleSheet, ViewStyle, StyleProp, Image } from 'react-native'
+import { View, Text, Dimensions, ViewStyle, StyleProp, Image } from 'react-native'
 import {COLORS} from '../constants/Theme'
-const psgLogo = require('../assets/images/right-logo.png')
+const psgLogo = require('../assets/images/psg_logo_2.jpg')
 const psgIMSLogo = require('../assets/images/PSG_Institute_of_Medical_Sciences_&_Research_Logo.svg.png')
 
 interface CustomHeaderProps {
@@ -10,19 +10,26 @@ interface CustomHeaderProps {
 }
 
 const CustomHeader = ({ title, leftButton }:CustomHeaderProps) => {
+  const screenHeight = Dimensions.get("window").height
   return (
-    <View className='bg-white flex items-center py-5 w-full rounded-b-sm'>
+    <View className='bg-white flex items-center w-full rounded-b-sm' style = {{ paddingVertical : screenHeight < 725 ?  5 : 20 }}>
       <View className='relative w-full flex flex-row items-center justify-around px-5'>
         <View className=''>{leftButton}</View>
-        <View className='flex-1 flex-row items-center justify-center gap-x-5 pr-10'>
+        <View className='flex-1 flex-row items-center justify-center gap-x-5  w-full py-2'>
           <Image
-            className='w-[80px] h-[80px]'
+            style={{ 
+                maxHeight : screenHeight < 650 ? 60 : 80,
+                maxWidth : screenHeight < 650 ? 60 : 80,
+             }}
             source={psgIMSLogo}
             resizeMode='contain'
           />
-          <View className='w-[2px] h-[80px] bg-[#ddd]'/>
+          <View className='w-[2px] h-[70px] bg-[#ddd]'/>
           <Image
-            className='w-[100px] h-[100px]'
+            style={{ 
+              maxHeight : screenHeight < 650 ? 80 : 80,
+              maxWidth : screenHeight < 650 ? 80 : 80,
+           }}
             source={psgLogo}
             resizeMode='contain'
           />

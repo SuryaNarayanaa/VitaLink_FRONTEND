@@ -1,4 +1,4 @@
-import { View, Text,ScrollView,StyleSheet } from 'react-native'
+import { View, Text,ScrollView,StyleSheet,Dimensions } from 'react-native'
 import { Table, Row } from 'react-native-reanimated-table';
 import { COLORS, FONT_FAMILY } from '../../constants/Theme';
 import React from 'react'
@@ -25,6 +25,8 @@ export const formatDateTime = (isoString: string) => {
   return { formattedDate, formattedTime };
 };
 
+const screenHeight = Dimensions.get("window").height
+
 
 const Profile = () => {
   const { patientData } = usePatientContext();
@@ -32,6 +34,8 @@ const Profile = () => {
 
   const tableHead = ['Day', 'Dose'];
   const tableData = patient?.dosage_schedule?.map((item) => [item.day, item.dosage]) || [];
+
+  
 
   const latestInrDateTime = patient.inr_reports?.[0]?.date
     ? formatDateTime(patient.inr_reports[0].date)
@@ -52,7 +56,7 @@ const Profile = () => {
   
   return (
     <ScrollView style={styles.container}>
-      <View className='bg-[#ffffff99] backdrop:blur-md p-11 m-[15px] rounded-2xl'>
+      <View className='bg-[#ffffff99] backdrop:blur-md m-[15px] rounded-2xl' style = {{ padding : screenHeight < 725 ? 25 : 38  }}>
         <Text className='text-2xl font-bold text-[#2a2626]'>{patient.name}</Text>
         <Text className='mt-2 font-semibold  text-[#555252] tracking-wide'>{`(Age: ${patient.age}, Gender: ${patient.gender})`}</Text>
         
@@ -101,7 +105,7 @@ const Profile = () => {
           <View>
           {patient.medical_history && patient.medical_history.length > 0 ? (
           patient.medical_history.map((item, index) => (
-          <View key={index} className="bg-transparent mb-4">
+          <View key={index} className="bg-transparent mb-6">
             <Text className="text-lg text-gray-900">
               Diagnosis: {item.diagnosis}
             </Text>
@@ -163,7 +167,7 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:10,
+    padding:screenHeight < 700 ? 5 : 10 ,
     fontFamily: FONT_FAMILY.primary,
   },
   card: {
@@ -205,13 +209,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   tableRow: {
-    height: 40,
+    height: screenHeight < 750 ? 50 : 40 ,
     backgroundColor: 'transparent',
   },
   tableText: {
-    margin: 6,
+    margin: screenHeight < 750 ? 4 : 6 ,
     color: 'black',
-    fontSize: 14, // Add a font size to ensure it's valid
+    fontSize: screenHeight < 750 ? 12 :14 ,
   },
   tableHeader: {
     height: 40,

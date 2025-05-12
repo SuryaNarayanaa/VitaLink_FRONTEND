@@ -119,7 +119,6 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
 
   const handleEditDosage = () => {
     if (editMode) {
-      console.log(dosage)
       changeDosage(dosage)
     }
     setEditMode(!editMode);

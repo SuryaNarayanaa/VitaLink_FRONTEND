@@ -32,7 +32,6 @@ const ReassignDoctorModal: React.FC<ReassignDoctorModalProps> = ({
       return response.data
     },
     onSuccess:() => {
-      console.log("Success Send a Toast")
       queryclient.invalidateQueries({queryKey:["doctorProfile"]})
       Toast.show({
         type:'success',
