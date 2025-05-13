@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.7,
   },
-  signInButtonText: {
+  signInButtoniewText: {
     color: 'white',
     fontWeight: 'bold',
   },
