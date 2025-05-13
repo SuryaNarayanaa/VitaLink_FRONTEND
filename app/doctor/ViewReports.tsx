@@ -845,66 +845,45 @@ const generateAndSharePDF = async (report: ReportData): Promise<void> => {
 // Function to generate and download the PDF
 const generateAndDownloadPDF = async (report: ReportData): Promise<void> => {
   try {
-    // First show a loading toast
     showToast({
       title: 'Generating Report',
       message: 'Please wait while we prepare the report for download...',
       type: 'info'
     });
-    
-    // Fetch more detailed patient information
+
+    // 1) Generate PDF in temp location
     const patientDetails = await fetchPatientDetails(report.patient_ID);
-    
-    // Create the HTML content
-    const htmlContent = await createReportHTML(report, patientDetails || undefined);
-    
-    // Generate the PDF
-    const { uri } = await Print.printToFileAsync({
-      html: htmlContent,
-      base64: false,
+    const htmlContent   = await createReportHTML(report, patientDetails || undefined);
+    const { uri }       = await Print.printToFileAsync({ html: htmlContent, base64: false });
+
+    // 2) Ask user where to save via share sheet with "saveToFiles"
+    //    On iOS this brings up the "Save to Files" dialog.
+    //    On Android it opens the share menu, where the user can choose
+    //    a file manager or cloud storage provider.
+    // @ts-ignore
+    await Sharing.shareAsync(uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Save PDF report',
+      UTI: 'com.adobe.pdf',
+      // on iOS this prompts "Save to Files"; on Android it's ignored but still shows the sheet
+      saveToFiles: true,
+    }as any);
+
+    showToast({
+      title: 'Report Saved',
+      message: 'Choose a location to save your PDF.',
+      type: 'success'
     });
-    
-    // Get the file name
-    const filename = `VitaLink_Report_${report.patient_ID}_${new Date().getTime()}.pdf`;
-    
-    // New file path with proper name
-    const pdfPath = FileSystem.documentDirectory + filename;
-    
-    // Move the file to give it a proper name
-    await FileSystem.moveAsync({
-      from: uri,
-      to: pdfPath,
-    });
-      // Check if sharing is available
-    if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(pdfPath, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Download Report',
-        UTI: 'com.adobe.pdf'
-      });
-      
-      showToast({
-        title: 'Report Downloaded',
-        message: 'Your report has been successfully downloaded',
-        type: 'success'
-      });
-    } else {
-      showToast({
-        title: 'Download Unavailable',
-        message: 'Cannot download files on this device',
-        type: 'error'
-      });
-    }
+
   } catch (error) {
-    console.error('Error downloading PDF:', error);
+    console.error('Error generating or saving PDF:', error);
     showToast({
       title: 'Error',
-      message: 'Failed to download report. Please try again.',
+      message: 'Failed to generate or save the report. Please try again.',
       type: 'error'
     });
   }
 };
-
 // Function removed: downloadOriginalFile is no longer needed as we're using generateAndDownloadPDF instead
 
 // Modal component props type
@@ -938,47 +917,28 @@ const ReportOptionsModal: React.FC<ReportOptionsModalProps> = ({
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Report Options</Text>
-            <Text style={styles.modalSubtitle}>Patient: {report?.patient_name}</Text>
-            
-            <TouchableOpacity 
-              style={styles.modalOption} 
-              onPress={() => {
-                onClose();
-                onGeneratePDF();
-              }}
-            >
-              <Ionicons name="share-social" size={24} color="#E41E4F" />
-              <View style={styles.modalOptionTextContainer}>
-                <Text style={styles.modalOptionTitle}>View/Share PDF Report</Text>
-                <Text style={styles.modalOptionDescription}>View or share the PDF report with others</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.modalOption}
-              onPress={() => {
-                onClose();
-                onDownloadPDF();
-              }}
-            >
-              <Ionicons name="download" size={24} color="#2196F3" />
-              <View style={styles.modalOptionTextContainer}>
-                <Text style={styles.modalOptionTitle}>Download PDF Report</Text>
-                <Text style={styles.modalOptionDescription}>
-                  Save the report to your device
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={onClose}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+        <Text style={styles.modalTitle}>Report Options</Text>
+        <Text style={styles.modalSubtitle}>Patient: {report?.patient_name}</Text>
+        <TouchableOpacity 
+          style={styles.modalOption} 
+          onPress={() => {
+            onClose();
+            onGeneratePDF();
+          }}
+        >
+          <Ionicons name="document-text" size={24} color="#E41E4F" />
+          <View style={styles.modalOptionTextContainer}>
+            <Text style={styles.modalOptionTitle}>Generate PDF Report</Text>
+            <Text style={styles.modalOptionDescription}>View, save or share the PDF report</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#999" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.closeButton}
+          onPress={onClose}
+        >
+          <Text style={styles.closeButtonText}>Close</Text>
+        </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
@@ -1045,31 +1005,26 @@ export default function ViewReports() {
             <Text style={styles.statusText}>Status: {status}</Text>
           </View>
         </View>
-        
         <View style={styles.reportContent}>
           <View style={styles.reportDetail}>
             <Text style={styles.detailLabel}>Test Type:</Text>
-            <Text style={styles.detailValue}>{item.inr_report.type || 'INR Test'}  </Text>
+            <Text style={styles.detailValue}>{item.inr_report.type || 'INR Test'}</Text>
           </View>
-          
           <View style={styles.reportDetail}>
             <Text style={styles.detailLabel}>INR Value:</Text>
             <Text style={styles.detailValue}>{item.inr_report.inr_value.toFixed(1)} INR</Text>
           </View>
-          
           <View style={styles.reportDetail}>
             <Text style={styles.detailLabel}>Date:</Text>
-            <Text style={styles.detailValue}>{formatDate(item.inr_report.date)}  </Text>
+            <Text style={styles.detailValue}>{formatDate(item.inr_report.date)}</Text>
           </View>
-          
           {item.inr_report.file_name && (
             <View style={styles.reportDetail}>
               <Text style={styles.detailLabel}>Document:</Text>
-              <Text style={styles.detailValue}>{item.inr_report.file_name}   </Text>
+              <Text style={styles.detailValue}>{item.inr_report.file_name}</Text>
             </View>
           )}
         </View>
-        
         <TouchableOpacity 
           style={styles.viewDetailsButton}
           onPress={() => handleReportPress(item)}
@@ -1089,41 +1044,27 @@ export default function ViewReports() {
         {filterType === 'today' 
           ? 'No reports submitted today' 
           : 'No reports available'
-        }   
-      </Text>
+        }</Text>
     </View>
   );
   return (
     <SafeAreaView style={styles.container}>
-      {/* <CustomHeader 
-        title="Patient Reports" 
-        leftButton={
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-        }
-      /> */}
-      
       <View style={styles.filterSection}>
         <TouchableOpacity 
           style={[styles.filterTab, filterType === 'today' && styles.activeTab]}
           onPress={() => setFilterType('today')}
         >
           <Text style={[styles.filterTabText, filterType === 'today' && styles.activeTabText]}>
-            Today's Reports
-          </Text>
+            Today's Reports</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity 
           style={[styles.filterTab, filterType === 'all' && styles.activeTab]}
           onPress={() => setFilterType('all')}
         >
           <Text style={[styles.filterTabText, filterType === 'all' && styles.activeTabText]}>
-            All Reports
-          </Text>
+            All Reports</Text>
         </TouchableOpacity>
       </View>
-      
       {isLoading && !refreshing ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#E41E4F" />
@@ -1132,7 +1073,7 @@ export default function ViewReports() {
       ) : isError ? (
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={48} color="#E41E4F" />
-          <Text style={styles.errorText}>{error.message}  </Text>
+          <Text style={styles.errorText}>{error.message}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchReports}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
@@ -1154,16 +1095,15 @@ export default function ViewReports() {
             />
           }
           ListEmptyComponent={renderEmptyList}
-        />      )}
-      
-      {/* Report Options Modal */}      <ReportOptionsModal 
-        isVisible={modalVisible} 
-        onClose={() => setModalVisible(false)} 
-        report={selectedReport} 
-        onGeneratePDF={handleGeneratePDF} 
-        onDownloadPDF={handleDownloadPDF} 
+        />)}
+      {/* Report Options Modal */}
+      <ReportOptionsModal
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        report={selectedReport}
+        onGeneratePDF={handleGeneratePDF}
+        onDownloadPDF={handleDownloadPDF}
       />
-      
       <Toast />
     </SafeAreaView>
   );

@@ -169,7 +169,11 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 20,
+  },signInButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
+
   label: {
     fontSize: 16,
     marginBottom: 8,
