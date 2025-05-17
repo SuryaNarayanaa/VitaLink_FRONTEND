@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl, Platform, Dimensions, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import axios from 'axios';
-import { BASE_URL } from '../config/env';
-import * as SecureStore from 'expo-secure-store';
-import { useDoctor } from '@/hooks/api/doctor/useDoctor';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
-import { showToast } from '@/components/ui/CustomToast';
+import { showToast } from '../../components/ui/CustomToast';
 import Toast from 'react-native-toast-message';
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 
 // Types based on API response
 interface INRReport {
@@ -85,18 +81,14 @@ const fetchPatientDetails = async (patientId: string): Promise<PatientDetailResp
   }
 };
 
-// Function to generate QR code as data URL
 const generateQRCode = async (data: string): Promise<string> => {
   try {
-    // For React Native compatibility, we use a different approach
-    // We'll generate a simple SVG format QR code that works everywhere
-    // This avoids canvas dependency issues in React Native
     return new Promise<string>((resolve, reject) => {
       QRCode.toString(data, {
         type: 'svg',
         width: 120,
         margin: 1,
-        errorCorrectionLevel: 'H', // High error correction for better readability
+        errorCorrectionLevel: 'H',
         color: {
           dark: '#000000',
           light: '#ffffff'
@@ -104,7 +96,6 @@ const generateQRCode = async (data: string): Promise<string> => {
       }, (err: Error | null | undefined, svgString: string) => {
         if (err) {
           console.error('Error generating QR code:', err);
-          // Return a fallback data URL in case of error - this is a simple square
           resolve('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
             `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
               <rect width="120" height="120" fill="#ffffff"/>

@@ -4,7 +4,7 @@
     "slug": "vitalink",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/psg_logo_2.jpg",
+    "icon": "./assets/images/logo_2.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -74,7 +74,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "4b8b2b7d-2c6e-4328-9b35-57495ea67150"
+        "projectId": "5d81f4d5-b785-42db-a9ba-be45d01dc912"
       }
     }
   }

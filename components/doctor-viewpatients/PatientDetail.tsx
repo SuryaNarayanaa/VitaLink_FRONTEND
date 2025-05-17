@@ -295,6 +295,10 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
         <View style={styles.infoGrid}>
           <View style={styles.infoTable}>
             <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Patient Username</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient?.ID}</Text>
+            </View>
+            <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Doctor</Text>
               <Text style={styles.infoValue}>{PatientData?.patient?.doctorName}</Text>
             </View>
