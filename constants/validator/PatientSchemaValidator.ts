@@ -9,17 +9,7 @@ const dosageSchema = Yup.object({
     then: () => Yup.string()
       .trim()
       .required('Dosage value is required when enabled')
-      .matches(/^\d+(\.\d+)?$/, 'Dosage must be a number')
-      .test('within-range', 'Dosage must be within the target INR range', function (value) {
-         const root = this.options.context?.values || {};
-        const target_inr_min = root.target_inr_min;
-        const target_inr_max = root.target_inr_max;
-        if (value === undefined) return true;
-        const dosage = parseFloat(value);
-        const min = parseFloat(target_inr_min);
-        const max = parseFloat(target_inr_max);
-        return dosage >= min && dosage <= max;
-      }),
+      .matches(/^\d+(\.\d+)?$/, 'Dosage must be a number'),
     otherwise: () => Yup.string().notRequired(),
   }),
 });

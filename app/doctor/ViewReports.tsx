@@ -11,7 +11,6 @@ import { showToast } from '../../components/ui/CustomToast';
 import Toast from 'react-native-toast-message';
 import * as QRCode from 'qrcode';
 
-// Types based on API response
 interface INRReport {
   inr_value: number;
   location_of_test: string;
@@ -164,11 +163,10 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           }
           
           .page-container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
             background-color: white;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
             overflow: hidden;
             position: relative;
           }
@@ -177,7 +175,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           .header {
             background: linear-gradient(135deg, #E41E4F, #ff6b81);
             color: white;
-            padding: 35px 30px;
+            padding: 20px 25px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -206,7 +204,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           }
           
           .logo-container {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -245,7 +243,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           
           /* Content Styles */
           .content {
-            padding: 35px;
+            padding: 25px;
           }
           
           .card {
@@ -282,7 +280,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           }
           
           .card-body {
-            padding: 22px;
+            padding: 10px;
           }
           
           .info-grid {
@@ -313,9 +311,9 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
             background-color: ${statusColor};
             color: white;
             border-radius: 10px;
-            padding: 25px 20px;
+            padding: 10px 5px;
             text-align: center;
-            margin: 24px 0;
+            margin: 5px 0;
             position: relative;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -324,8 +322,8 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
           .highlight-box::before {
             content: '';
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 50px;
+            height: 50px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             top: -120px;
@@ -568,6 +566,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
             .page-container {
               box-shadow: none;
               margin: 0;
+              margin-inline: auto;
             }
           }
         </style>
@@ -690,68 +689,7 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
                 </div>
               </div>
             ` : ''}
-              <!-- Recommendations Section -->
-            <div class="card">
-              <div class="card-header">
-                <div class="section-title">Recommendations</div>
-              </div>
-              <div class="card-body">
-                <div class="recommendations">
-                  ${(() => {
-                    let recommendationText = '';
-                    if (report.inr_report.inr_value < 2.0) {
-                      recommendationText = 'INR value is below the therapeutic range. Patient may require dosage adjustment.';
-                    } else if (report.inr_report.inr_value >= 2.0 && report.inr_report.inr_value <= 3.0) {
-                      recommendationText = 'INR value is within the therapeutic range. Continue current medication regimen.';
-                    } else if (report.inr_report.inr_value > 3.0 && report.inr_report.inr_value < 4.0) {
-                      recommendationText = 'INR value is slightly elevated. Consider monitoring more frequently or minor dosage adjustment.';
-                    } else {
-                      recommendationText = 'INR value is critically high. Immediate medical attention and dosage reduction may be required.';
-                    }
-                    return `<p class="recommendation-text">${recommendationText}</p>`;
-                  })()}
-                  
-                  <div class="next-steps">
-                    <h4>Next Steps:</h4>
-                    <ul class="steps-list">
-                      <li>Schedule follow-up appointment within ${report.inr_report.inr_value > 3.0 ? '7' : '14'} days</li>
-                      <li>Continue regular medication monitoring</li>
-                      <li>Report any unusual bleeding or symptoms immediately</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
             
-            <!-- Digital Authentication Section -->
-            <div class="card authentication-card">
-              <div class="card-header">
-                <div class="section-title">Digital Authentication</div>
-              </div>
-              <div class="card-body authentication-container">                
-                <div class="qr-section">
-                  <div class="qr-code">
-                    ${qrCodeDataURL ? `<img src="${qrCodeDataURL}" alt="QR Code for report verification" width="120" height="120" />` : `
-                      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="120" height="120" fill="#f5f5f5"/>
-                        <text x="60" y="60" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">QR Code</text>
-                      </svg>
-                    `}
-                  </div>
-                  <div class="authentication-info">
-                    <div class="info-item">
-                      <div class="info-label">Report ID</div>
-                      <div class="info-value report-id">${reportId}</div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Generated On</div>
-                      <div class="info-value">${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
-                    </div>
-                    <div class="qr-note">Scan QR code to verify report authenticity</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           
           <div class="footer">
@@ -833,51 +771,40 @@ const generateAndSharePDF = async (report: ReportData): Promise<void> => {
   }
 };
 
-// Function to generate and download the PDF
-const generateAndDownloadPDF = async (report: ReportData): Promise<void> => {
+const viewPDFInApp = async (report: ReportData): Promise<void> => {
   try {
     showToast({
-      title: 'Generating Report',
-      message: 'Please wait while we prepare the report for download...',
+      title: 'Loading Report',
+      message: 'Please wait while we prepare the report...',
       type: 'info'
     });
 
-    // 1) Generate PDF in temp location
     const patientDetails = await fetchPatientDetails(report.patient_ID);
-    const htmlContent   = await createReportHTML(report, patientDetails || undefined);
-    const { uri }       = await Print.printToFileAsync({ html: htmlContent, base64: false });
+    const htmlContent = await createReportHTML(report, patientDetails || undefined);
 
-    // 2) Ask user where to save via share sheet with "saveToFiles"
-    //    On iOS this brings up the "Save to Files" dialog.
-    //    On Android it opens the share menu, where the user can choose
-    //    a file manager or cloud storage provider.
-    // @ts-ignore
-    await Sharing.shareAsync(uri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Save PDF report',
-      UTI: 'com.adobe.pdf',
-      // on iOS this prompts "Save to Files"; on Android it's ignored but still shows the sheet
-      saveToFiles: true,
-    }as any);
+    // This will open the PDF in a print preview modal
+    await Print.printAsync({
+      html: htmlContent,
+      // Optional: customize the print options
+      printerUrl: undefined, // This ensures it opens in preview mode
+    });
 
     showToast({
-      title: 'Report Saved',
-      message: 'Choose a location to save your PDF.',
+      title: 'Report Loaded',
+      message: 'Report opened in preview mode',
       type: 'success'
     });
 
   } catch (error) {
-    console.error('Error generating or saving PDF:', error);
+    console.error('Error viewing PDF:', error);
     showToast({
       title: 'Error',
-      message: 'Failed to generate or save the report. Please try again.',
+      message: 'Failed to load report. Please try again.',
       type: 'error'
     });
   }
 };
-// Function removed: downloadOriginalFile is no longer needed as we're using generateAndDownloadPDF instead
 
-// Modal component props type
 interface ReportOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -908,28 +835,63 @@ const ReportOptionsModal: React.FC<ReportOptionsModalProps> = ({
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-        <Text style={styles.modalTitle}>Report Options</Text>
-        <Text style={styles.modalSubtitle}>Patient: {report?.patient_name}</Text>
-        <TouchableOpacity 
-          style={styles.modalOption} 
-          onPress={() => {
-            onClose();
-            onGeneratePDF();
-          }}
-        >
-          <Ionicons name="document-text" size={24} color="#E41E4F" />
-          <View style={styles.modalOptionTextContainer}>
-            <Text style={styles.modalOptionTitle}>Generate PDF Report</Text>
-            <Text style={styles.modalOptionDescription}>View, save or share the PDF report</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.closeButton}
-          onPress={onClose}
-        >
-          <Text style={styles.closeButtonText}>Close</Text>
-        </TouchableOpacity>
+            <Text style={styles.modalTitle}>Report Options</Text>
+            <Text style={styles.modalSubtitle}>Patient: {report?.patient_name}</Text>
+            
+            {/* View PDF Option */}
+            <TouchableOpacity 
+              style={styles.modalOption} 
+              onPress={() => {
+                onClose();
+                if (report) viewPDFInApp(report);
+              }}
+            >
+              <Ionicons name="eye" size={24} color="#4CAF50" />
+              <View style={styles.modalOptionTextContainer}>
+                <Text style={styles.modalOptionTitle}>View Report</Text>
+                <Text style={styles.modalOptionDescription}>View the PDF report within the app</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            {/* Generate PDF Option */}
+            <TouchableOpacity 
+              style={styles.modalOption} 
+              onPress={() => {
+                onClose();
+                onGeneratePDF();
+              }}
+            >
+              <Ionicons name="share" size={24} color="#2196F3" />
+              <View style={styles.modalOptionTextContainer}>
+                <Text style={styles.modalOptionTitle}>Share Report</Text>
+                <Text style={styles.modalOptionDescription}>Share the PDF report with others</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            {/* Download PDF Option */}
+            <TouchableOpacity 
+              style={styles.modalOption} 
+              onPress={() => {
+                onClose();
+                onDownloadPDF();
+              }}
+            >
+              <Ionicons name="download" size={24} color="#E41E4F" />
+              <View style={styles.modalOptionTextContainer}>
+                <Text style={styles.modalOptionTitle}>Download Report</Text>
+                <Text style={styles.modalOptionDescription}>Save the PDF report to device</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={onClose}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
@@ -941,6 +903,8 @@ export default function ViewReports() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [filterType, setFilterType] = useState<'today' | 'all'>('today');
+  const [savedFilesModalVisible, setSavedFilesModalVisible] = useState(false);
+  const [savedFiles, setSavedFiles] = useState<string[]>([]);
   const queryclient = useQueryClient();
   
   // Modal state
@@ -977,6 +941,125 @@ export default function ViewReports() {
       generateAndDownloadPDF(selectedReport);
     }
   }
+
+  const generateAndDownloadPDF = async (report: ReportData): Promise<void> => {
+  try {
+    showToast({
+      title: 'Generating Report',
+      message: 'Please wait while we prepare the report for download...',
+      type: 'info'
+    });
+
+    const patientDetails = await fetchPatientDetails(report.patient_ID);
+    const htmlContent = await createReportHTML(report, patientDetails || undefined);
+    const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false });
+
+    if (Platform.OS === 'android') {
+      const filename = `VitaLink_Report_${report.patient_name.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+      
+      try {
+        const downloadsDir = FileSystem.documentDirectory + 'Downloads/';
+        const dirInfo = await FileSystem.getInfoAsync(downloadsDir);
+        
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(downloadsDir, { intermediates: true });
+        }
+
+        const destinationPath = downloadsDir + filename;
+        console.log(destinationPath)
+        await FileSystem.copyAsync({
+          from: uri,
+          to: destinationPath
+        });
+
+        showToast({
+          title: 'Download Complete',
+          message: `Report saved to app Downloads folder as ${filename}`,
+          type: 'success'
+        });
+
+      } catch (error) {
+        console.error('Error saving file:', error);
+        showToast({
+          title: 'Save Error',
+          message: 'Failed to save file to Downloads folder. Please try sharing instead.',
+          type: 'error'
+        });
+      }
+
+      } else if (Platform.OS === 'ios') {
+      const filename = `VitaLink_Report_${report.patient_name.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+      
+      try {
+        const documentsPath = FileSystem.documentDirectory + filename;
+        console.log(documentsPath)
+        await FileSystem.copyAsync({
+          from: uri,
+          to: documentsPath
+        });
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(documentsPath, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save PDF Report',
+            UTI: 'com.adobe.pdf',
+            saveToFiles: true,
+          } as any);
+
+          showToast({
+            title: 'Save Dialog Opened',
+            message: 'Choose a location to save your PDF report.',
+            type: 'success'
+          });
+        } else {
+          showToast({
+            title: 'File Saved',
+            message: `Report saved to app documents as ${filename}`,
+            type: 'success'
+          });
+        }
+        } catch (error) {
+        console.error('Error saving file:', error);
+        showToast({
+          title: 'Save Error',
+          message: 'Failed to save file. Please try sharing instead.',
+          type: 'error'
+        });
+      }
+
+    } else {
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save PDF Report',
+          UTI: 'com.adobe.pdf',
+          saveToFiles: true,
+        } as any);
+
+        showToast({
+          title: 'Save Dialog Opened',
+          message: 'Choose a location to save your PDF report.',
+          type: 'success'
+        });
+      } else {
+        showToast({
+          title: 'Save Unavailable',
+          message: 'File saving is not available on this platform.',
+          type: 'error'
+        });
+      }
+    }
+
+  } catch (error) {
+    console.error('Error generating or saving PDF:', error);
+    showToast({
+      title: 'Error',
+      message: 'Failed to generate or save the report. Please try again.',
+      type: 'error'
+    });
+    }
+  };
+
 
   const renderReportItem = ({ item }: { item: ReportData }) => {
     const status = getStatus(item.inr_report.inr_value);
@@ -1340,5 +1423,94 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  // FAB styles
+  fab: {
+    position: 'absolute',
+    bottom: 25,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#E41E4F',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+
+  savedFilesContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  savedFilesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  savedFilesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  savedFilesContent: {
+    flex: 1,
+    padding: 16,
+  },
+  savedFilesSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  filesList: {
+    paddingBottom: 20,
+  },
+  fileItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  fileItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  fileIcon: {
+    marginRight: 12,
+  },
+  fileDetails: {
+    flex: 1,
+  },
+  fileName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 4,
+  },
+  fileInfo: {
+    fontSize: 12,
+    color: '#666',
+  },
+  deleteButton: {
+    padding: 8,
   },
 });

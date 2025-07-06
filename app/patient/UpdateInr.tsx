@@ -105,23 +105,27 @@ export default function UpdateInr() {
 
   const {mutate:updateInrMutate, isError, isPending, isSuccess} = useMutation({
     mutationFn: async(report: INRReport) => {
-      if(!selectedFile.uri || !form.inr_value || !form.location_of_test || !form.date) {
+      if(!form.inr_value || !form.location_of_test || !form.date) {
         Toast.show({
            type:'error',
            text1:'All the fields are required'
         })
       }
-      const formData = new FormData();
-      formData.append("inr_value", form.inr_value);
-      formData.append("location_of_test", form.location_of_test);
-      formData.append("date", form.date);
-      formData.append("file", selectedFile.file);
-      formData.append("file_name", selectedFile.name);
-      
-      const response = await apiClient.post("/patient/update-inr", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return response.data;
+      else{
+        const formData = new FormData();
+        formData.append("inr_value", form.inr_value);
+        formData.append("location_of_test", form.location_of_test);
+        formData.append("date", form.date);
+        if(selectedFile?.file) {
+          formData.append("file_path", selectedFile?.uri);
+          formData.append("file_name", selectedFile?.name);
+          formData.append("type", selectedFile?.mimeType);
+        }
+        const response = await apiClient.post("/patient/update-inr", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        return response.data;
+      }
     },
     onSuccess: () => {
       queryclient.invalidateQueries({ queryKey: ["profile"] });

@@ -37,7 +37,7 @@ export default function RootLayout() {
           <Stack screenOptions={{headerTitleAlign:'center', headerShown:false}}>
           </Stack>
           <Toast/>
-          <StatusBar style="auto"/>
+          <StatusBar backgroundColor="#F8F8F8" style='dark'/>
         </ErrorBoundary>
       </SafeAreaView>
     </SafeAreaProvider>

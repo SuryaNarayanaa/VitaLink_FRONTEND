@@ -64,7 +64,15 @@
         }
       ],
       "expo-secure-store",
-      "expo-build-properties"
+      "expo-build-properties",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to save PDF reports to your device.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save PDF reports to your device.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

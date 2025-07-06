@@ -49,8 +49,8 @@ export interface PatientDashboardResponse {
     inr_value: number;
     location_of_test: string;
     date: string;
-    file_name: string;
-    file_path: string;
+    file_name?: string;
+    file_path?: string;
     type: string;
     file?: string;
   }
