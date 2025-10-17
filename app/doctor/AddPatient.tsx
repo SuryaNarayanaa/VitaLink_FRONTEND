@@ -142,7 +142,6 @@ const AddPatient = () => {
        })
      }
   })
-  // Handle form submission
   const handleSubmit = async() => {
     try {
       // Check if at least one day is selected in the dosage schedule
@@ -202,7 +201,7 @@ const AddPatient = () => {
 
   // Options
   const genderOptions = ['Male', 'Female', 'Other'];
-  const therapyOptions = [ 'Warfarin', 'Heparin', 'Dabigatran', 'Rivaroxaban'];
+  const therapyOptions = [ 'Warfarin', 'Heparin', 'Dabigatran', 'Rivaroxaban','Acitrom', 'Not Assigned'];
   const durationUnitOptions = ['Days', 'Weeks', 'Months', 'Years'];
   const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
