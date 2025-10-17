@@ -9,8 +9,11 @@ import {
   TextInput,
   Switch,
   SafeAreaView,
-  Dimensions
+  Dimensions,
+  Modal,
+  Platform
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/api';
@@ -42,6 +45,8 @@ const convertPrescriptionObjectToArray = (prescriptionArray: DosageScheduleItem[
 const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
   const [activeTab, setActiveTab] = useState('inr');
   const [editMode, setEditMode] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [nextReviewDate, setNextReviewDate] = useState<string>('');
   type Day =
   | 'MON'
   | 'TUE'
@@ -76,6 +81,9 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           enabled: item.dosage > 0,
         }))
       );
+    }
+    if (PatientData?.patient?.next_review_date) {
+      setNextReviewDate(PatientData.patient.next_review_date);
     }
   }, [PatientData]);
 
@@ -117,11 +125,46 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
     }
   })
 
+  const {mutate:updateNextReviewDate,isPending:isUpdatingReview} = useMutation({
+    mutationFn:async(date:string) => {
+       const response = await apiClient.put(`/doctor/update-next-review/${patient.ID}`,{next_review_date:date})
+       return response.data
+    },
+    onSuccess:() => { 
+       queryclient.invalidateQueries({queryKey:["patient"]});
+       setShowDatePicker(false);
+       Toast.show({
+         type:'success',
+         text1:'Next review date updated successfully'
+       }); 
+     },
+     onError:(err) => {
+       Toast.show({
+         type:'error',
+         text1:'Error while updating review date'
+       }); 
+     }
+  })
+
   const handleEditDosage = () => {
     if (editMode) {
       changeDosage(dosage)
     }
     setEditMode(!editMode);
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS !== 'ios') {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const year = selectedDate.getFullYear();
+      const formattedDate = `${day}-${month}-${year}`;
+      setNextReviewDate(formattedDate);
+      updateNextReviewDate(formattedDate);
+    }
   };
 
   const validChartData = typeof PatientData?.chart_data === 'object' && !Array.isArray(PatientData.chart_data)
@@ -319,6 +362,17 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
               <Text style={styles.infoLabel}>Therapy Start Date</Text>
               <Text style={styles.infoValue}>{PatientData?.patient?.therapy_start_date}</Text>
             </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Next Review Date</Text>
+              <TouchableOpacity 
+                style={styles.infoValue}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={{color: '#2196F3', textDecorationLine: 'underline'}}>
+                  {nextReviewDate || 'Set Review Date'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
           
           {/*<View style={styles.infoTable}>
@@ -356,8 +410,34 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           {renderTabContent()}
         </View>
       </ScrollView>
-      
-      
+
+      {showDatePicker && (
+        <Modal
+          transparent={true}
+          animationType="fade"
+          visible={showDatePicker}
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
+            <View style={{backgroundColor: 'white', padding: 20, borderRadius: 10}}>
+              <DateTimePicker 
+                value={new Date()} 
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'} 
+                onChange={handleDateChange}
+              />
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={{marginTop: 10, padding: 10, backgroundColor: '#2196F3', borderRadius: 5, alignItems: 'center'}}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>Done</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };

@@ -298,6 +298,19 @@ async def edit_dosage(patient_id: str, dosage: List[DosageSchedule], request: Re
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.put("/doctor/update-next-review/{patient_id}", dependencies=[Depends(get_current_user)])
+async def update_next_review(patient_id: str, next_review_date: dict, request: Request, current_user: dict = Depends(role_required("doctor"))):
+    try:
+        collection.update_one(
+            {"type": "Patient", "ID": patient_id}, 
+            {"$set": {"next_review_date": next_review_date.get("next_review_date")}}
+        )
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Next review date updated successfully!"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/doctor/reports", response_class=HTMLResponse, dependencies=[Depends(get_current_user)])
 async def view_reports(typ: str, request: Request, current_user: dict = Depends(role_required("doctor"))):
     if typ == "today":
@@ -345,18 +358,33 @@ async def update_inr_report(request: Request,
                             inr_value: float = Form(...),
                             location_of_test: str = Form(...),
                             date: str = Form(...),
+                            instructions: str = Form(default=""),
                             file: UploadFile = File(...),
                             current_user: dict = Depends(role_required("patient"))):
     file_path = f"static/patient_docs/{file.filename}"
     with open(file_path, "wb") as f:
         f.write(await file.read())
+    
+    # Parse and convert date to ISO format (dd-mm-yyyy to ISO)
+    try:
+        date_parts = date.split('-')
+        if len(date_parts) == 3:
+            # Assuming format is dd-mm-yyyy
+            day, month, year = int(date_parts[0]), int(date_parts[1]), int(date_parts[2])
+            iso_date = datetime(year, month, day).isoformat()
+        else:
+            iso_date = date
+    except:
+        iso_date = date
+    
     report_dict = {
         "inr_value": inr_value,
         "location_of_test": location_of_test,
-        "date": date,
+        "date": iso_date,
         "file_name": file.filename,
         "file_path": file_path,
         "type": "INR Report",
+        "instructions": instructions,
     }
     result = collection.update_one(
         {"type": "Patient", "ID": current_user["ID"]},

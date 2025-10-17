@@ -61,6 +61,7 @@ export default function UpdateInr() {
   const [form, setForm] = useSafeState({
     inr_value: '',
     date: '',
+    instructions: '',
   })
   const [selectedFile, setSelectedFile] = useSafeState<fileProps>({
     uri: '',
@@ -113,6 +114,7 @@ export default function UpdateInr() {
       const formData = new FormData();
       formData.append("inr_value", form.inr_value);
       formData.append("date", form.date);
+      formData.append("instructions", form.instructions);
       formData.append("file", selectedFile.file);
       formData.append("file_name", selectedFile.name);
       
@@ -129,7 +131,7 @@ export default function UpdateInr() {
         text1:"INR report has been submitted successfully"
       })
       // Reset form
-      setForm({ inr_value: "", date: "" });
+      setForm({ inr_value: "", date: "", instructions: "" });
       setSelectedFile({ uri: "", name: "", file: "", mimeType: "" });
     },
     onError: (error: any) => {
@@ -146,7 +148,7 @@ export default function UpdateInr() {
     if (isNaN(inrNumber)) {
       setFormError("invalid Inr_value");
       setButtonStatus('error');
-      setForm({inr_value:'',date:''})
+      setForm({inr_value:'',date:'',instructions:''})
       return;
     }
     if(!isValidDate(form.date)) {setFormError("The Provided Date is invalid");setButtonStatus('error');;return;}
@@ -155,6 +157,7 @@ export default function UpdateInr() {
     const report = {
       inr_value: inrNumber,
       date: form.date,
+      instructions: form.instructions,
       file: selectedFile.file, 
       file_name: selectedFile ? selectedFile.name : '',
       file_path: selectedFile ? selectedFile.uri : '',
@@ -197,6 +200,15 @@ export default function UpdateInr() {
         onChangeText={(value)=>setForm({...form,date:value})}
         iconComponent={<Ionicons name="calendar" size={20} color="#555" />}
         onIconPress={() => setShowDatePicker(true)}/>
+
+        <InputField label='Instructions :' 
+        labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
+        inputStyle='bg-[#fff] border rounded-xl border-[#ddd]' 
+        placeholder='Enter dosage instructions (optional)'
+        value={form.instructions}
+        multiline={true}
+        numberOfLines={3}
+        onChangeText={(value)=>setForm({...form,instructions:value})}/>
 
         {showDatePicker && (
         <Modal

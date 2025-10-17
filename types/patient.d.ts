@@ -13,6 +13,7 @@ export interface Patient{
     duration_unit: string;
   }[];
   therapy_start_date: string;
+  next_review_date?: string;
   dosage_schedule:DosageScheduleItem[]
   contact: string;
   kin_name: string;
@@ -54,6 +55,7 @@ export interface PatientDashboardResponse {
     file_path: string;
     type: string;
     file?: string;
+    instructions?: string;
   }
 
   export interface TakeDoseFormResponse {

@@ -19,6 +19,7 @@ interface INRReport {
   file_name?: string;
   file_path?: string;
   type?: string;
+  instructions?: string;
 }
 
 interface ReportData {
@@ -62,7 +63,32 @@ const getStatus = (value: number) => {
 };
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  // Handle various date formats
+  let date: Date;
+  
+  // Try to parse if it's already a valid ISO string
+  if (dateString.includes('T') || dateString.includes('-')) {
+    date = new Date(dateString);
+  } else if (dateString.includes('/')) {
+    // Handle DD/MM/YYYY format
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+      const year = parseInt(parts[2], 10);
+      date = new Date(year, month, day);
+    } else {
+      date = new Date(dateString);
+    }
+  } else {
+    date = new Date(dateString);
+  }
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    return dateString; // Return original string if parsing fails
+  }
+  
   return date.toLocaleDateString('en-US', { 
     year: 'numeric', 
     month: 'short', 
@@ -654,6 +680,12 @@ const createReportHTML = async (report: ReportData, patientDetails?: PatientDeta
                     <div class="info-label">Test Date</div>
                     <div class="info-value">${formatDate(report.inr_report.date)}</div>
                   </div>
+                  ${report.inr_report.instructions ? `
+                  <div class="info-item">
+                    <div class="info-label">Instructions</div>
+                    <div class="info-value">${report.inr_report.instructions}</div>
+                  </div>
+                  ` : ''}
                 </div>
               </div>
             </div>
@@ -1009,6 +1041,12 @@ export default function ViewReports() {
             <Text style={styles.detailLabel}>Date:</Text>
             <Text style={styles.detailValue}>{formatDate(item.inr_report.date)}</Text>
           </View>
+          {item.inr_report.instructions && (
+            <View style={styles.reportDetail}>
+              <Text style={styles.detailLabel}>Instructions:</Text>
+              <Text style={styles.detailValue}>{item.inr_report.instructions}</Text>
+            </View>
+          )}
           {item.inr_report.file_name && (
             <View style={styles.reportDetail}>
               <Text style={styles.detailLabel}>Document:</Text>
