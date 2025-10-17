@@ -24,6 +24,7 @@ class DosageSchedule(BaseModel):
 
 class Patient(BaseModel):
     name: str = Field(...)
+    opnum: str = Field(...)
     age: int = Field(..., ge=1, le=120)
     gender: str = Field(..., pattern="^(M|F|O)$")
     target_inr_min: float
@@ -35,6 +36,7 @@ class Patient(BaseModel):
     contact: str = Field(..., pattern=r"^\+91\s?(\d\s?){10}$")
     kin_name: str = Field(..., pattern="^[a-zA-Z ]{2,}$")
     kin_contact: str = Field(..., pattern=r"^\+91\s?(\d\s?){10}$")
+    next_review_date: str = Field(default=None)
 
     def as_dict(self) -> Dict:
         dct = self.dict()
@@ -51,4 +53,5 @@ class INRReport(BaseModel):
     location_of_test: str
     date: datetime
     file_name: str
+    instructions: str = Field(default="")
     created_at: datetime = Field(default_factory=datetime.utcnow)

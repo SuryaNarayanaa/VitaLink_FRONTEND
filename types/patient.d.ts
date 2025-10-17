@@ -1,6 +1,7 @@
 export interface Patient{
   _id: string;
   name: string;
+  opnum: string;
   age: number;
   gender: string;
   target_inr_min: number;
@@ -12,6 +13,7 @@ export interface Patient{
     duration_unit: string;
   }[];
   therapy_start_date: string;
+  next_review_date?: string;
   dosage_schedule:DosageScheduleItem[]
   contact: string;
   kin_name: string;
@@ -53,6 +55,7 @@ export interface PatientDashboardResponse {
     file_path?: string;
     type: string;
     file?: string;
+    instructions?: string;
   }
 
   export interface TakeDoseFormResponse {
@@ -81,6 +84,7 @@ export interface PatientDashboardResponse {
 
   export interface PatientCreateRequest {
     name: string;
+    opnum: string;
     contact: string;
     age: number;
     gender: string;

@@ -16,6 +16,7 @@ const dosageSchema = Yup.object({
 
 export const patientSchema = Yup.object({
   name: Yup.string().trim().required('Patient name is required'),
+  opnum: Yup.string().trim().required('OP Number is required'),
   age: Yup.string().trim().required('Patient age is required').matches(/^\d+$/, 'Age must be numeric'),
   gender: Yup.string().required('Gender selection is required'),
   target_inr_min: Yup.string().trim().required('Target INR Min value is required').matches(/^\d+(\.\d+)?$/, 'Target INR Min must be numeric'),

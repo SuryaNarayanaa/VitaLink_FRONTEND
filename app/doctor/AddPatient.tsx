@@ -25,6 +25,7 @@ import Toast from 'react-native-toast-message';
 
 const initalData = {
   name: '',
+  opnum: '',
   age: '',
   gender: '',
   target_inr_min: '',
@@ -163,6 +164,7 @@ const AddPatient = () => {
       
       const refinedData = {
         name: patientData.name.trim(),
+        opnum: patientData.opnum.trim(),
         contact: `+91${patientData.contact}`,
         age: parseInt(patientData.age, 10),
         gender: patientData.gender.charAt(0).toUpperCase(),
@@ -221,6 +223,12 @@ const AddPatient = () => {
           labelStyle='text-base font-primary font-bold text-gray-800'
           inputStyle={`bg-white border border-gray-300  px-4 ${ screenHeight < 750 ? 'py-2' : 'py-3' } text-base text-gray-800 rounded-xl`}
           value={patientData.name} onChangeText={(text) => handleInputChange('name',text)}
+          placeholderTextColor='#999' />
+
+        <InputField label='OP Number *' placeholder='Enter OP number' 
+          labelStyle='text-base font-primary font-bold text-gray-800'
+          inputStyle={`bg-white border border-gray-300  px-4 ${ screenHeight < 750 ? 'py-2' : 'py-3' } text-base text-gray-800 rounded-xl`}
+          value={patientData.opnum} onChangeText={(text) => handleInputChange('opnum',text)}
           placeholderTextColor='#999' />
 
         <InputField label='Age *' placeholder='Enter your age' 

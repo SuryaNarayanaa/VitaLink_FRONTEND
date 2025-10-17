@@ -60,8 +60,8 @@ export default function UpdateInr() {
   const {updateINR} = usePatient()
   const [form, setForm] = useSafeState({
     inr_value: '',
-    location_of_test: '',
     date: '',
+    instructions: '',
   })
   const [selectedFile, setSelectedFile] = useSafeState<fileProps>({
     uri: '',
@@ -105,27 +105,23 @@ export default function UpdateInr() {
 
   const {mutate:updateInrMutate, isError, isPending, isSuccess} = useMutation({
     mutationFn: async(report: INRReport) => {
-      if(!form.inr_value || !form.location_of_test || !form.date) {
+      if(!selectedFile.uri || !form.inr_value || !form.date) {
         Toast.show({
            type:'error',
            text1:'All the fields are required'
         })
       }
-      else{
-        const formData = new FormData();
-        formData.append("inr_value", form.inr_value);
-        formData.append("location_of_test", form.location_of_test);
-        formData.append("date", form.date);
-        if(selectedFile?.file) {
-          formData.append("file_path", selectedFile?.uri);
-          formData.append("file_name", selectedFile?.name);
-          formData.append("type", selectedFile?.mimeType);
-        }
-        const response = await apiClient.post("/patient/update-inr", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        return response.data;
-      }
+      const formData = new FormData();
+      formData.append("inr_value", form.inr_value);
+      formData.append("date", form.date);
+      formData.append("instructions", form.instructions);
+      formData.append("file", selectedFile.file);
+      formData.append("file_name", selectedFile.name);
+      
+      const response = await apiClient.post("/patient/update-inr", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
     },
     onSuccess: () => {
       queryclient.invalidateQueries({ queryKey: ["profile"] });
@@ -135,7 +131,7 @@ export default function UpdateInr() {
         text1:"INR report has been submitted successfully"
       })
       // Reset form
-      setForm({ inr_value: "", location_of_test: "", date: "" });
+      setForm({ inr_value: "", date: "", instructions: "" });
       setSelectedFile({ uri: "", name: "", file: "", mimeType: "" });
     },
     onError: (error: any) => {
@@ -152,17 +148,16 @@ export default function UpdateInr() {
     if (isNaN(inrNumber)) {
       setFormError("invalid Inr_value");
       setButtonStatus('error');
-      setForm({inr_value:'',location_of_test:'',date:''})
+      setForm({inr_value:'',date:'',instructions:''})
       return;
     }
-    if(form.location_of_test === '') {setFormError("Location field is empty");setButtonStatus('error');;return;}
     if(!isValidDate(form.date)) {setFormError("The Provided Date is invalid");setButtonStatus('error');;return;}
     setButtonStatus('pending');
 
     const report = {
       inr_value: inrNumber,
-      location_of_test: form.location_of_test,
       date: form.date,
+      instructions: form.instructions,
       file: selectedFile.file, 
       file_name: selectedFile ? selectedFile.name : '',
       file_path: selectedFile ? selectedFile.uri : '',
@@ -197,15 +192,6 @@ export default function UpdateInr() {
         value={form.inr_value}
         onChangeText={(value)=>setForm({...form,inr_value:value})}/>
 
-
-        <InputField label='Location of Test :' 
-        labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
-        inputStyle='bg-[#fff] border rounded-xl border-[#ddd]' 
-        placeholder='Enter test location'
-        value={form.location_of_test}
-        onChangeText={(value)=>setForm({...form,location_of_test:value})}/>
-        
-
         <InputField label='Date of Test :' 
         labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
         inputStyle='bg-[#fff] border rounded-xl border-[#ddd]' 
@@ -214,6 +200,15 @@ export default function UpdateInr() {
         onChangeText={(value)=>setForm({...form,date:value})}
         iconComponent={<Ionicons name="calendar" size={20} color="#555" />}
         onIconPress={() => setShowDatePicker(true)}/>
+
+        <InputField label='Instructions :' 
+        labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
+        inputStyle='bg-[#fff] border rounded-xl border-[#ddd]' 
+        placeholder='Enter dosage instructions (optional)'
+        value={form.instructions}
+        multiline={true}
+        numberOfLines={3}
+        onChangeText={(value)=>setForm({...form,instructions:value})}/>
 
         {showDatePicker && (
         <Modal

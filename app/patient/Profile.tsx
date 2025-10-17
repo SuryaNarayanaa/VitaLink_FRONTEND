@@ -97,6 +97,7 @@ const Profile = () => {
             <Row data={['Caregiver', `${patient.caretakerName}`]} style={styles.tableRow} textStyle={styles.tableText} />
             <Row data={['Therapy', patient.therapy]} style={styles.tableRow} textStyle={styles.tableText} />
             <Row data={['Therapy Start Date', patient.therapy_start_date]} style={styles.tableRow} textStyle={styles.tableText} />
+            <Row data={['Next Review Date', patient.next_review_date || 'Not Set']} style={styles.tableRow} textStyle={styles.tableText} />
           </Table>
         </View>
 
