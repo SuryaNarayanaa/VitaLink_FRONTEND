@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View,Text, TouchableOpacity, StyleSheet, FlatList,SafeAreaView,} from 'react-native';
+import { View,Text, TouchableOpacity, StyleSheet, FlatList,SafeAreaView, TextInput} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { format } from 'date-fns';
 import PatientCard from '../../components/doctor-viewpatients/PatientCard';
@@ -16,6 +16,7 @@ type ViewMode = 'cards' | 'table';
 const Patients = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const {doctorData} = useDoctorContext();
   
@@ -38,6 +39,14 @@ const Patients = () => {
       return response.data.doctors
     }
   })
+
+  // Filter patients by name or OP number
+  const filteredPatients = (doctorData?.patients || []).filter((patient) => {
+    const name = patient.name?.toLowerCase() || '';
+    const opnum = patient.opnum?.toLowerCase() || '';
+    const term = searchTerm.toLowerCase();
+    return name.includes(term) || opnum.includes(term);
+  });
   
   if (selectedPatient) {
     return <PatientDetail patient={selectedPatient} onBack={handleBackToList} />;
@@ -50,7 +59,7 @@ const Patients = () => {
         style={styles.gradientBackground}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Viewing {doctorData?.patients.length} Patients</Text>
+          <Text style={styles.headerTitle}>Viewing {filteredPatients.length} Patients</Text>
           <TouchableOpacity 
             style={styles.viewModeButton}
             onPress={toggleViewMode}
@@ -60,10 +69,20 @@ const Patients = () => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            placeholder="Search by name or OP#..."
+            placeholderTextColor="#999"
+          />
+        </View>
         
         {viewMode === 'cards' ? (
           <FlatList
-            data={doctorData?.patients}
+            data={filteredPatients}
             renderItem={({ item }) => (
               <PatientCard 
                 patient={item} 
@@ -76,13 +95,13 @@ const Patients = () => {
             ListEmptyComponent={() => (
               <View className='flex-1 mt-5 w-full justify-center items-center'>
                 <NotFoundAnimation/>
-                <Text className='font-semibold text-center'>No patients available</Text>
+                <Text className='font-semibold text-center'>No patients found</Text>
               </View>
             )}
           />
         ) : (
           <PatientTable 
-            patients={doctorData?.patients!} 
+            patients={filteredPatients} 
             onViewPatient={handleViewPatient} 
           />
         )}
@@ -112,7 +131,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   headerTitle: {
     fontSize: 22,
@@ -128,6 +147,18 @@ const styles = StyleSheet.create({
   viewModeButtonText: {
     color: 'black',
     fontWeight: '500',
+  },
+  searchContainer: {
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    backgroundColor: 'white',
+    borderRadius: 8,
+  },
+  searchInput: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    color: 'black',
   },
   cardList: {
     paddingBottom: 20,
