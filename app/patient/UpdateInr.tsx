@@ -60,7 +60,6 @@ export default function UpdateInr() {
   const {updateINR} = usePatient()
   const [form, setForm] = useSafeState({
     inr_value: '',
-    location_of_test: '',
     date: '',
   })
   const [selectedFile, setSelectedFile] = useSafeState<fileProps>({
@@ -105,7 +104,7 @@ export default function UpdateInr() {
 
   const {mutate:updateInrMutate, isError, isPending, isSuccess} = useMutation({
     mutationFn: async(report: INRReport) => {
-      if(!selectedFile.uri || !form.inr_value || !form.location_of_test || !form.date) {
+      if(!selectedFile.uri || !form.inr_value || !form.date) {
         Toast.show({
            type:'error',
            text1:'All the fields are required'
@@ -113,7 +112,6 @@ export default function UpdateInr() {
       }
       const formData = new FormData();
       formData.append("inr_value", form.inr_value);
-      formData.append("location_of_test", form.location_of_test);
       formData.append("date", form.date);
       formData.append("file", selectedFile.file);
       formData.append("file_name", selectedFile.name);
@@ -131,7 +129,7 @@ export default function UpdateInr() {
         text1:"INR report has been submitted successfully"
       })
       // Reset form
-      setForm({ inr_value: "", location_of_test: "", date: "" });
+      setForm({ inr_value: "", date: "" });
       setSelectedFile({ uri: "", name: "", file: "", mimeType: "" });
     },
     onError: (error: any) => {
@@ -148,16 +146,14 @@ export default function UpdateInr() {
     if (isNaN(inrNumber)) {
       setFormError("invalid Inr_value");
       setButtonStatus('error');
-      setForm({inr_value:'',location_of_test:'',date:''})
+      setForm({inr_value:'',date:''})
       return;
     }
-    if(form.location_of_test === '') {setFormError("Location field is empty");setButtonStatus('error');;return;}
     if(!isValidDate(form.date)) {setFormError("The Provided Date is invalid");setButtonStatus('error');;return;}
     setButtonStatus('pending');
 
     const report = {
       inr_value: inrNumber,
-      location_of_test: form.location_of_test,
       date: form.date,
       file: selectedFile.file, 
       file_name: selectedFile ? selectedFile.name : '',
@@ -192,15 +188,6 @@ export default function UpdateInr() {
         placeholder='Enter INR value' keyboardType='numeric'
         value={form.inr_value}
         onChangeText={(value)=>setForm({...form,inr_value:value})}/>
-
-
-        <InputField label='Location of Test :' 
-        labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 
-        inputStyle='bg-[#fff] border rounded-xl border-[#ddd]' 
-        placeholder='Enter test location'
-        value={form.location_of_test}
-        onChangeText={(value)=>setForm({...form,location_of_test:value})}/>
-        
 
         <InputField label='Date of Test :' 
         labelStyle='text-[16px] font-bold text-[#333] tracking-wider mb-2' 

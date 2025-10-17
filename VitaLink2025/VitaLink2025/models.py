@@ -24,6 +24,7 @@ class DosageSchedule(BaseModel):
 
 class Patient(BaseModel):
     name: str = Field(...)
+    opnum: str = Field(...)
     age: int = Field(..., ge=1, le=120)
     gender: str = Field(..., pattern="^(M|F|O)$")
     target_inr_min: float

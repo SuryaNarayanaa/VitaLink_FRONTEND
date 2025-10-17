@@ -267,6 +267,7 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
           </TouchableOpacity>
           <View style={styles.patientHeader}>
             <Text style={styles.patientName}>{patient?.name}</Text>
+            <Text style={styles.patientOpnum}>OP #: {patient?.opnum}</Text>
             <Text style={styles.patientInfo}>(Age: {patient.age}, Gender: {patient.gender})</Text>
           </View>
         </View>
@@ -294,6 +295,10 @@ const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onBack }) => {
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         <View style={styles.infoGrid}>
           <View style={styles.infoTable}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>OP Number</Text>
+              <Text style={styles.infoValue}>{PatientData?.patient?.opnum}</Text>
+            </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Patient Username</Text>
               <Text style={styles.infoValue}>{PatientData?.patient?.ID}</Text>
@@ -387,6 +392,11 @@ const styles = StyleSheet.create({
   patientName: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  patientOpnum: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
   patientInfo: {
     fontSize: 14,

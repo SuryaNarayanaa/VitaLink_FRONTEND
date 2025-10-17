@@ -25,6 +25,7 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, onViewPatient,doctor
   return (
     <View style={styles.card}>
       <Text style={styles.name}>{patient.name}</Text>
+      <Text style={styles.opnum}>OP #: {patient.opnum}</Text>
       <Text style={styles.info}>Age: {patient.age}, Gender: {patient.gender}</Text>
       
       {isExpanded && (
@@ -90,6 +91,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  opnum: {
+    fontSize: 12,
+    color: '#666',
     marginBottom: 4,
   },
   info: {

@@ -1,6 +1,7 @@
 export interface Patient{
   _id: string;
   name: string;
+  opnum: string;
   age: number;
   gender: string;
   target_inr_min: number;
@@ -81,6 +82,7 @@ export interface PatientDashboardResponse {
 
   export interface PatientCreateRequest {
     name: string;
+    opnum: string;
     contact: string;
     age: number;
     gender: string;
